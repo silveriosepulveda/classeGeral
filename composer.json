@@ -1,6 +1,6 @@
 {
-  "name": "vendor/classegeral",
-  "description": "A general purpose PHP class.",
+  "name": "silveriosepulveda/classegeral",
+  "description": "Classe de Gerenciamento de Dados em PHP",
   "type": "library",
   "require": {
     "php": "^7.2 || ^8.0"
@@ -23,11 +23,11 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "Your Name",
-      "email": "your.email@example.com"
+      "name": "Siverio Sepulveda",
+      "email": "silveriosepulveda@yahoo.com.br"
     }
   ],
-  "homepage": "https://github.com/yourusername/classeGeral",
+  "homepage": "https://github.com/silveriosepulveda/classeGeral",
   "keywords": [
     "php",
     "class",
