@@ -1,0 +1,36 @@
+{
+  "name": "vendor/classegeral",
+  "description": "A general purpose PHP class.",
+  "type": "library",
+  "require": {
+    "php": "^7.2 || ^8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "ClasseGeral\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ClasseGeral\\Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Your Name",
+      "email": "your.email@example.com"
+    }
+  ],
+  "homepage": "https://github.com/yourusername/classeGeral",
+  "keywords": [
+    "php",
+    "class",
+    "library"
+  ]
+}
