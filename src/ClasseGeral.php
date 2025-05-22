@@ -3,6 +3,7 @@
 namespace ClasseGeral;
 
 require_once __DIR__ . '/conClasseGeral.php';
+require_once __DIR__ . '/Funcoes.php';
 
 class ClasseGeral extends ConClasseGeral
 {
