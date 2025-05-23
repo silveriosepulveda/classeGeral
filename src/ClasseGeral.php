@@ -52,22 +52,17 @@ class ClasseGeral extends ConClasseGeral
                 if ($selecionado == 'false') {
                     $_SESSION[session_id()]['consultas'][$tela]['parametrosConsulta']['todosItensSelecionados'] = $selecionado;
                 }
-                $_SESSION[session_id()]['consultas'][$tela]['lista'][$key]['selecionado'] = $selecionado;
-                //   print_r($_SESSION[session_id()]['consultas'][$tela]['lista'][$key]);
+                $_SESSION[session_id()]['consultas'][$tela]['lista'][$key]['selecionado'] = $selecionado;                
             }
         }
     }
-
-    //Tenho que acrescentar a configuracoes tabela aqui.
 
     public function selecionarTodosItensConsulta($parametros)
     {
         $tela = $parametros['tela'];
         $selecionado = $parametros['selecionado'];
 
-        //require_once $this->funcoes;
-        //$sessao = new manipulaSessao();
-        $sessao = new ManipulaSessao();
+        $sessao = new \ClasseGeral\ManipulaSessao();
         $variavelSessao = 'consultas,' . $tela;
         $lista = $sessao->pegar($variavelSessao);
 
@@ -112,11 +107,8 @@ class ClasseGeral extends ConClasseGeral
 
         $tabelaConsulta = $p['tabelaConsulta'] ?? $tabela;
         $temCampoDisponivelNoFiltro = false;
-
-        //$this->funcoes = $_SESSION[session_id()]['caminhoApiLocal'] . 'api/BaseArcabouco/funcoes.class.php';
-        //require_once $this->funcoes;
-        //$sessao = new manipulaSessao();
-        $sessao = new ManipulaSessao();
+        
+        $sessao = new \ClasseGeral\ManipulaSessao();
 
         $configuracoesTabela = $this->buscaConfiguracoesTabela($tabelaConsulta);
         $valoresConsiderarDisponivel = array_merge(['S'], $configuracoesTabela['valoresConsiderarDisponivel'] ?? []);
@@ -176,8 +168,7 @@ class ClasseGeral extends ConClasseGeral
                         if (array_key_exists(strtolower($filtro['campo']), $camposTabelaRelacionada) && !in_array($filtro['campo'], $camposIgnorarFiltro)) {
 
                             $campoRelacionamento = $dadosTabelaRelacionada['campo_relacionamento'] ?? $dadosTabelaRelacionada['campoRelacionamento'];
-                            //Comentei a linha abaixo pois nao entendi o seu funcionamento em 09/10/2017
-                            //print_r($camposTabelaRelacionada[]);
+                            //Comentei a linha abaixo pois nao entendi o seu funcionamento em 09/10/2017                            
 
                             if (isset($filtro['campo_chave']) && in_array($filtro['campo_chave'], array_keys($camposTabelaRelacionada)) &&
                                 isset($filtro['chave']) && $filtro['chave'] > 0) {
@@ -200,9 +191,7 @@ class ClasseGeral extends ConClasseGeral
             $s['comparacao'][] = array('varchar', 'arquivado', '!=', 'E');
         }
 
-        //print_r($campos_tabela);
-        if (isset($campos_tabela['disponivel']) && !$temCampoDisponivelNoFiltro) {
-            //$s['comparacao'][] = array('varchar', 'disponivel', '=', 'S');
+        if (isset($campos_tabela['disponivel']) && !$temCampoDisponivelNoFiltro) {            
             $s['comparacao'][] = array('inArray', 'disponivel', '=', $valoresConsiderarDisponivel);
         }
 
@@ -225,8 +214,6 @@ class ClasseGeral extends ConClasseGeral
         $dispositivoMovel = isset($p['dispositivoMovel']) && $p['dispositivoMovel'];
         $retorno['paginacao'] = $this->paginacao;
         $retorno['paginacao']['paginasMostrar'] = $dispositivoMovel ? 5 : 10;
-
-        // $s['verificarEmpresaUsuario'] = isset($p['verificarEmpresaUsuario']) && $p['verificarEmpresaUsuario'];
 
         $retornoTemp = $this->retornosqldireto($s, 'montar', $tabelaConsulta, (isset($p['origem']) && $p['origem'] == 'site'), $this->mostrarSQLConsulta);
 
@@ -283,8 +270,7 @@ class ClasseGeral extends ConClasseGeral
             $retorno['paginacao']['qtdPaginas'] = 1;
             $retorno['paginacao']['limitePaginaAtiva'] = 0;
         }
-
-        // print_r($retorno['lista']);
+        
         //Testando a rotina de incluir as informacoes de tabelas relacionadas ja na consulta
         if ($incluirRelacionados) {
             $chaves = array();
@@ -300,8 +286,7 @@ class ClasseGeral extends ConClasseGeral
                     if ($chavesSQL != '') {
                         $sqlTabRel = "SELECT $camposBuscar FROM $tabelaRelacionada WHERE $p[campo_chave] IN ($chavesSQL)";
                         $sqlTabRel .= isset($this->campostabela($tabelaRelacionada)['disponivel']) ? " and disponivel = 'S' " : '';
-
-                        //echo strtolower($sqlTabRel) . "\n";
+                        
                         $dadosTabRel = $this->agruparArray($this->retornosqldireto(strtolower($sqlTabRel), '', $tabelaRelacionada), $p['campo_chave'], false);
                     }
                 }
@@ -317,8 +302,7 @@ class ClasseGeral extends ConClasseGeral
         $classeTabela = isset($configuracoesTabela['classe']) ? $configuracoesTabela['classe'] : $this->nomeClase($tabela);
 
         $classeAposFiltrar = $this->criaClasseTabela($classeTabela);
-        $funcaoAposFiltrar = isset($parametros['acaoAposFiltrar']) && $parametros['acaoAposFiltrar'] != 'undefined' ? $parametros['acaoAposFiltrar'] : 'aposFiltrar';
-        //echo $classeAposFiltrar . ' -- ' . $funcaoAposFiltrar;
+        $funcaoAposFiltrar = isset($parametros['acaoAposFiltrar']) && $parametros['acaoAposFiltrar'] != 'undefined' ? $parametros['acaoAposFiltrar'] : 'aposFiltrar';        
         $temFuncaoAposFiltrar = $this->criaFuncaoClasse($classeAposFiltrar, $funcaoAposFiltrar);
 
         if ($temFuncaoAposFiltrar) {
@@ -334,18 +318,14 @@ class ClasseGeral extends ConClasseGeral
         $retornoSessao['lista'] = $retorno['lista'];
         $retornoSessao['parametrosSQL'] = $s;
 
-        $sessao->setar('consultas,' . $tela, $retornoSessao);
-
-        //print_r($retorno);/*
-        //$tipoRetorno = 'array';
+        $sessao->setar('consultas,' . $tela, $retornoSessao);        
 
         $this->desconecta($s['dataBase']);
         if ($tipoRetorno == 'json') {
             return json_encode($retorno);
         } else if ($tipoRetorno == 'array') {
             return $retorno;
-        }
-        //*/
+        }        
     }
 
     private function resumoConsulta($parametros, $campos_tabela = array())
@@ -388,7 +368,6 @@ class ClasseGeral extends ConClasseGeral
 
         $resumo = $this->retornosqldireto(strtolower($sql), '', $p['tabela'])[0];
         return $resumo;
-        //*/
     }
 
     public function buscarParaAlterar($parametros, $tipoRetorno = 'json')
@@ -422,7 +401,7 @@ class ClasseGeral extends ConClasseGeral
                 $r = array();
                 $r['tabela'] = $keyTR;
                 $r['comparacao'][] = array('int', $campoRelacionamentoTR, '=', $p['chave']);
-                //$r['comparacao'][] = ['varchar', 'disponivel', '=', 'S'];
+                
                 if (array_key_exists('disponivel', $camposTabelaRelacionada)) {
                     $r['comparacao'][] = array('varchar', 'disponivel', '=', 'S');
                 }
@@ -430,8 +409,7 @@ class ClasseGeral extends ConClasseGeral
                 $r['ordem'] .= isset($valTR['sentidoOrdem']) ? ' ' . $valTR['sentidoOrdem'] : '';
 
                 $nomeArrayRelacionado = isset($valTR['raizModelo']) ? $valTR['raizModelo'] : strtolower($this->nometabela($keyTR));
-                //print_r($camposTabelaRelacionada);
-
+                
                 if (isset($valTR['verificarEmpresaUsuario']) && $valTR['verificarEmpresaUsuario']) {
                     $r['verificarEmpresaUsuario'] = true;
                 }
@@ -445,11 +423,7 @@ class ClasseGeral extends ConClasseGeral
                 }
 
                 $retornoR = $this->retornosqldireto($r, 'montar', $keyTR, false, false);
-                //print_r($retornoR);
-                //echo $this->q;
-                //Inserir a comparacao se tem anexos, inicialmente farei apenas nas subrelacionadas, pois e a demanda da SEGMED
-                //$retornoR['arquivosAnexos'] = $this->buscarAnexos(['tabela' => $keyTR, 'chave' => $retornoR[$valTR['campo_chave']]], 'array');
-
+                
                 if (isset($valTR['tabelasSubRelacionadas'])) {
                     foreach ($retornoR as $keyR => $valR) {
                         $sR = array();
@@ -466,8 +440,7 @@ class ClasseGeral extends ConClasseGeral
                             }
                             $sR['ordem'] = isset($valS['campo_valor']) ? $valS['campo_valor'] : '';
                             $retornoSr = $this->retornosqldireto($sR, 'montar', $keyS, false, false);
-
-                            //echo "\n";
+                
                             if (sizeof($retornoSr) > 0) {
                                 if (isset($valS['temAnexos']) && $valS['temAnexos']) {
                                     $tempSR = $this->agruparArray($retornoSr, $valS['campo_chave']);
@@ -489,10 +462,12 @@ class ClasseGeral extends ConClasseGeral
             }
         }
 
-        if (is_file($caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php')) {
+        $arqConTab = $caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php';
+        if (is_file($arqConTab)) {
+            require_once $arqConTab;
+            $classeConTab = '\\configuracoesTabelas';
 
-            require_once $caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php';
-            $config = new \configuracoesTabelas();
+            $config = new $classeConTab();
             $tabela = strtolower($this->nometabela($s['tabela']));
 
             if (method_exists($config, $tabela)) {
@@ -501,7 +476,7 @@ class ClasseGeral extends ConClasseGeral
                 if (isset($configuracoesTabela['classe']) && file_exists($caminhoApiLocal . 'apiLocal/classes/' . $configuracoesTabela['classe'] . '.class.php')) {
                     require_once $caminhoApiLocal . 'apiLocal/classes/' . $configuracoesTabela['classe'] . '.class.php';
                     if (isset($configuracoesTabela['aoBuscarParaAlterar'])) {
-                        $classeABA = new $configuracoesTabela['aoBuscarParaAlterar']['classe']();
+                        $classeABA = new ('\\' . $configuracoesTabela['aoBuscarParaAlterar']['classe'])();
                         if (method_exists($classeABA, $configuracoesTabela['aoBuscarParaAlterar']['funcaoExecutar'])) {
                             $fucnaoABA = $configuracoesTabela['aoBuscarParaAlterar']['funcaoExecutar'];
                             $retorno = $classeABA->$fucnaoABA($retorno, $p);
@@ -514,12 +489,10 @@ class ClasseGeral extends ConClasseGeral
         $retorno['arquivosAnexados'] = $this->buscarAnexos(array('tabela' => $p['tabela'], 'chave' => $p['chave']), 'array');
 
         return $tipoRetorno == 'json' ? json_encode($retorno) : $retorno;
-        //*/
     }
 
     public function buscarAnexos($parametros, $tipoRetorno = 'json')
     {
-        //echo 'busca';
         $p = $parametros;
 
         $tabela = strtolower($this->nometabela($p['tabela']));
@@ -534,8 +507,7 @@ class ClasseGeral extends ConClasseGeral
         if ($usarAnexosPersonalizados) {
             $configAnexos = $config['anexos'];
             $usarChaveNoCaminho = isset($configAnexos['usarChaveNoCaminho']) && $configAnexos['usarChaveNoCaminho'];
-            $this->carregarFuncoes();
-            $txt = new manipulaStrings();
+            $txt = new \ClasseGeral\ManipulaStrings();
         }
 
         $tabelaAnexos = $usarAnexosPersonalizados ? $configAnexos['tabela'] : 'arquivos_anexos';
@@ -552,8 +524,6 @@ class ClasseGeral extends ConClasseGeral
         $sql .= isset($p['limite']) ? " limit $p[limite] " : '';
         $sql .= ' order by posicao';
         $arquivosBase = $this->retornosqldireto($sql, '', $tabelaAnexos);
-
-        //print_r($arquivosBase);
 
         $anexosRelacionados = [];
         if (isset($config['anexosRelacionados'])) {
@@ -581,7 +551,6 @@ class ClasseGeral extends ConClasseGeral
 
         $arquivosBase = array_merge($arquivosBase, $anexosRelacionados);
 
-        // @session_start();
         $caminho = $_SESSION[session_id()]['caminhoApiLocal'];
 
         $arquivos = array();
@@ -600,7 +569,6 @@ class ClasseGeral extends ConClasseGeral
                 }
 
                 if (is_file($caminhoArquivo) && !array_key_exists($caminhoArquivo, $arquivosVerificados)) {
-                    //print_r($arquivosVerificados);
 
                     $arquivosVerificados[$caminhoArquivo] = $caminhoArquivo;
 
@@ -656,11 +624,10 @@ class ClasseGeral extends ConClasseGeral
         $p = $parametros;
 
         $config = $this->buscaConfiguracoesTabela($p['tabela']);
-//        $estrutura = $this->buscarEstrutura()
 
         //Acrescentando a chave na variavel de campos
         $s['tabela'] = $p['tabela'];
-        //$s['campos'] = array('*');// isset($p['campos']) ? $p['campos'] : array('*');
+
         $s['comparacao'][] = array('int', $p['campo_chave'], '=', $p['chave']);
 
         $tempD = $this->retornosqldireto($s, 'montar', $p['tabela']);
@@ -681,18 +648,16 @@ class ClasseGeral extends ConClasseGeral
                 if (array_key_exists('disponivel', $camposTabelaRelacionada)) {
                     $r['comparacao'][] = array('varchar', 'disponivel', '=', 'S');
                 }
-                // print_r($r);
                 $nomeArrayRelacionado = isset($valTR['raizModelo']) ? $valTR['raizModelo'] : strtolower($this->nometabela($keyTR));
                 $r['ordem'] = isset($valTR['campo_valor']) ? $valTR['campo_valor'] : '';
 
 
                 $retornoR = $this->retornosqldireto($r, 'montar', $keyTR, false, false);
-                //echo $this->q;
 
                 if (isset($valTR['tabelasSubRelacionadas'])) {
                     foreach ($retornoR as $keyR => $valR) {
                         $sR = array();
-                        //print_r($valTR);
+
                         foreach ($valTR['tabelasSubRelacionadas'] as $keyS => $valS) {
 
                             $camposTabelaSubRelacionada = $this->campostabela($keyS);
@@ -716,13 +681,10 @@ class ClasseGeral extends ConClasseGeral
             }
         }
 
-        //print_r($retorno);
         //Vendo se ha arquivos anexados
         $retorno['arquivosAnexados'] = $this->buscarAnexos(array('tabela' => $p['tabela'], 'chave' => $p['chave']), 'array');
 
-
         return json_encode($retorno);
-        //*/
     }
 
     /**
@@ -741,9 +703,6 @@ class ClasseGeral extends ConClasseGeral
         $dados = is_array($p['dados']) ? $p['dados'] : json_decode($p['dados'], true);
 
         $conf = is_array($p['configuracoes']) ? $p['configuracoes'] : json_decode($p['configuracoes'], true);
-        //print_r($conf);
-        //print_r($dados);/*
-        // print_r($arquivos);/*
 
         if (isset($conf['relacionamentosVerificar']) && is_array($conf['relacionamentosVerificar'])) {
             $this->verificaRelacionamentos($parametros);
@@ -824,7 +783,6 @@ class ClasseGeral extends ConClasseGeral
         //Essa funcao deve retornar sempre a mensagem sucesso ou erro
         if ($acao == 'inserir' && isset($confLocal['funcaoVerificacaoAoIncluir'])) {
 
-            //$classe = $this->criaClasseTabela($classeTabela);
             $funcaoExiste = $this->criaFuncaoClasse($classe, $confLocal['funcaoVerificacaoAoIncluir']);
 
             if ($classe && $funcaoExiste) {
@@ -837,7 +795,6 @@ class ClasseGeral extends ConClasseGeral
                 }
             }
         } else if ($acao == 'editar' && isset($confLocal['funcaoVerificacaoAoAlterar'])) {
-            //$classe = $this->criaClasseTabela($classeTabela);
             $funcaoExiste = $this->criaFuncaoClasse($classe, $confLocal['funcaoVerificacaoAoAlterar']);
 
             if ($classe && $funcaoExiste) {
@@ -857,7 +814,7 @@ class ClasseGeral extends ConClasseGeral
         if (isset($conf['funcaoManipula']) && $conf['funcaoManipula'] != 'undefined') {
             if (file_exists($caminhoApiLocal . 'apiLocal/classes/' . $conf['classe'] . '.class.php')) {
                 require_once $caminhoApiLocal . 'apiLocal/classes/' . $conf['classe'] . '.class.php';
-                $classeManipula = new $conf['classe'];
+                $classeManipula = new ('//' . $conf['classe'])();
                 $funcaoExecutar = $conf['funcaoManipula'];
                 $dados['acaoManipula'] = $acao;
                 return $classeManipula->$funcaoExecutar($dados, $a);
@@ -893,29 +850,25 @@ class ClasseGeral extends ConClasseGeral
             if (isset($arquivosTela)) {
                 if (sizeof($conf['arquivosAnexar']) > 0) { //Neste caso e campo da tela
 
-                    require_once $caminhoApiLocal . "/api/BaseArcabouco/uploadsimples.class.php";
-                    $up = new uploadSimples;
-                    require_once $caminhoApiLocal . '/api/BaseArcabouco/funcoes.class.php';
-                    $dir = new gerenciaDiretorios();
 
-                    $sessao = new manipulaSessao();
+                    $up = new \ClasseGeral\UploadSimples();
+                    $dir = new \ClasseGeral\GerenciaDiretorios();
+                    $sessao = new \ClasseGeral\ManipulaSessao();
                     $raiz = $sessao->pegar('caminhoApiLocal');
 
                     $arqConf = $this->agruparArray($conf['arquivosAnexar'], 'campo');
 
-                    //foreach ($conf['arquivosAnexar'] as $key => $arq) {
                     foreach ($arqConf as $key => $arq) {
                         if (isset($a[$arq['campo']])) { //Vendo se existe o $_Files
 //                            //Se tem destino nos atributos da imagem salvo no destino estipulado, senao em arquivos anexos
                             $caminhoBase = isset($arq['destino']) && $arq['destino'] != '' ? $arq['destino'] . '/' : 'arquivos_anexos/' . strtolower($tabela) . '/';
-//
-//                            //echo $caminhoBase . "\n";
+
+
 //                            //Vendo se e para criar um diretorio com a chave ou salvar direto no destino
                             $caminhoBase .= isset($arq['salvarEmDiretorio']) && $arq['salvarEmDiretorio'] == 'true' ? $chave . '/' : '';
 //
                             $caminhoUpload = $raiz . $caminhoBase;
-//                            // echo $caminhoUpload;
-//
+
                             $dir->criadiretorio($caminhoUpload);
 
                             $ext = strtolower(pathinfo($a[$arq['campo']]["name"], PATHINFO_EXTENSION));
@@ -925,8 +878,6 @@ class ClasseGeral extends ConClasseGeral
 
                             $dados[$arq['campo']] = $caminhoBase . $novo_nome;
 
-//                            //echo $caminhoUpload . ' - ' . $novo_nome;
-
                             if (in_array($ext, $this->extensoes_imagem)) {
                                 $up->upload($a[$arq['campo']], $novo_nome, $caminhoUpload, $arq['largura'], $arq['altura']);
                             } else if (in_array($ext, $this->extensoes_arquivos)) {
@@ -935,7 +886,6 @@ class ClasseGeral extends ConClasseGeral
                             $dados[$key] = $caminhoBase . '/' . $novo_nome;
                             //Removo o campo do array de arquivos
                             unset($a[$arq['campo']]);
-                            //*/ /*
                         }
                     }
                 }
@@ -1087,7 +1037,7 @@ class ClasseGeral extends ConClasseGeral
 
         if (is_file($caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php')) {
             require_once $caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php';
-            $config = new \configuracoesTabelas();
+            $config = new ('\\configuracoesTabelas')();
             $tabela = strtolower($tabela);
 
             if (method_exists($config, $tabela)) {
@@ -1096,7 +1046,7 @@ class ClasseGeral extends ConClasseGeral
                 if (isset($configuracoesTabela['classe']) && file_exists($caminhoApiLocal . 'apiLocal/classes/' . $configuracoesTabela['classe'] . '.class.php')) {
                     require_once $caminhoApiLocal . 'apiLocal/classes/' . $configuracoesTabela['classe'] . '.class.php';
                     if ($acao == 'inserir' && isset($configuracoesTabela['aoIncluir'])) {
-                        $classeAI = new $configuracoesTabela['aoIncluir']['classe']();
+                        $classeAI = new ('\\' . $configuracoesTabela['aoIncluir']['classe'])();
                         if (method_exists($classeAI, $configuracoesTabela['aoIncluir']['funcaoExecutar'])) {
                             $fucnaoAI = $configuracoesTabela['aoIncluir']['funcaoExecutar'];
                             $dados[$campoChave] = $chave;
@@ -1104,7 +1054,7 @@ class ClasseGeral extends ConClasseGeral
                         }
                     } else if ($acao == 'editar' && isset($configuracoesTabela['aoAlterar'])) {
 
-                        $classeAI = new $configuracoesTabela['aoAlterar']['classe']();
+                        $classeAI = new ('\\' . $configuracoesTabela['aoAlterar']['classe'])();
                         if (method_exists($classeAI, $configuracoesTabela['aoAlterar']['funcaoExecutar'])) {
                             $fucnaoAI = $configuracoesTabela['aoAlterar']['funcaoExecutar'];
                             $dados[$campoChave] = $chave;
@@ -1114,10 +1064,8 @@ class ClasseGeral extends ConClasseGeral
                 }
             }
         }
-
-
         return json_encode(array('chave' => $chave));
-        //*/
+
     }
 
     /**
@@ -1135,22 +1083,18 @@ class ClasseGeral extends ConClasseGeral
     {
         $dados = is_array($parametros['dados']) ? $parametros['dados'] : json_decode($parametros['dados'], true);
         $confi = is_array($parametros['configuracoes']) ? $parametros['configuracoes'] : json_decode($parametros['configuracoes'], true);
-        //print_r($dados);
-        //print_r($confi);
+
         foreach ($confi['relacionamentosVerificar'] as $relacionamento) {
 
             $campoChave = $this->campochavetabela($relacionamento['tabelaRelacionamento']);
 
             $sql = "SELECT $campoChave FROM  $relacionamento[tabelaRelacionamento] WHERE $campoChave > 0";
             foreach ($relacionamento['camposRelacionados'] as $camposRelacionado) {
-                //echo  $camposRelacionado . "\n";
                 $sql .= isset($dados[$camposRelacionado]) ? " AND $camposRelacionado = $dados[$camposRelacionado]" : '';
             }
             $sql = strtolower($sql);
-            // echo $sql . "\n";
 
             $relacionamentoExiste = sizeof($this->retornosqldireto($sql)) > 0;
-            //echo $relacionamentoExiste . "\n";
 
             if (!$relacionamentoExiste) {
 
@@ -1191,26 +1135,15 @@ class ClasseGeral extends ConClasseGeral
 
 
         if (sizeof($arquivos) > 0) {
-            //$p['tabela'] = strtolower($this->nometabela($p['tabela']));
-            //$tabela = $p['tabela'];
             $chave = $p['chave'];
 
-//            @session_start();
             $caminho = $_SESSION[session_id()]['caminhoApiLocal'];
             $destinoBase = 'arquivos_anexos/' . $tabela . '/' . $chave . '/';
             $destino = $caminho . 'arquivos_anexos/' . $tabela . '/' . $chave . '/';
             $destinom = $caminho . 'arquivos_anexos/' . $tabela . '/' . $chave . '/mini/';
 
-            //require_once $caminho . "/api/BaseArcabouco/uploadsimples.class.php";
-            //$up = new \uploadSimples;
             $up = new \ClasseGeral\UploadSimples();
-
-            //$this->funcoes = $this->funcoes = $caminho . 'api/BaseArcabouco/funcoes.class.php';
-            //require_once $this->funcoes;
-            //$func = new manipulaStrings;
             $func = new \ClasseGeral\ManipulaStrings();
-
-            //$dir = new gerenciaDiretorios;
             $dir = new \ClasseGeral\GerenciaDiretorios();
 
             if (!is_dir($destino)) {
@@ -1222,7 +1155,6 @@ class ClasseGeral extends ConClasseGeral
 
             foreach ($arquivos as $key => $a) {
                 $tipoArquivos = $a['tipo'] ?? 'files';
-
 
                 $ext = $tipoArquivos == 'files' ? strtolower(pathinfo($a["name"], PATHINFO_EXTENSION)) : 'png';
 
@@ -1249,7 +1181,6 @@ class ClasseGeral extends ConClasseGeral
                         $novoNomeBase64Temp = $destino . 'temp_' . $nomeComExtencao;
                         $novoNomeBase64 = $destino . $nomeComExtencao;
                         file_put_contents($novoNomeBase64Temp, $arquivoUp);
-                        //echo $largura . ' -- '. $altura;
                         $dimensoes = $this->defineTamanhoImagem($novoNomeBase64Temp, 'base64', $largura, $altura);
 
                         //Criando a imagem grande
@@ -1271,10 +1202,8 @@ class ClasseGeral extends ConClasseGeral
                 } else if (in_array($ext, $this->extensoes_arquivos)) {
                     $up->upload($a, $nomeComExtencao, $destino, $largura, $altura);
                 }
-//
-//                //echo $destino . $nomeComExtencao . $this->q;
+
                 if (is_file($destino . $nomeComExtencao)) {
-                    //echo 'e arquivo' . $destino . $nomeComExtencao. $this->q;
                     $tabelaP = strtolower($tabela);
                     $sqlP = "SELECT COUNT(chave_anexo) AS ultima_posicao FROM arquivos_anexos  WHERE tabela = '$tabelaP' AND chave_tabela = $chave";
                     $tempP = $this->retornosqldireto($sqlP, '', '', false, false);
@@ -1296,7 +1225,7 @@ class ClasseGeral extends ConClasseGeral
 
             if (file_exists($arquivoClasse)) {
                 require_once $arquivoClasse;
-                $classe = new $nomeClasse();
+                $classe = new ('\\' . $nomeClasse)();
                 if (method_exists($classe, 'aoIncluirAnexos')) {
                     $classe->aoIncluirAnexos($p);
                 }
@@ -1304,9 +1233,6 @@ class ClasseGeral extends ConClasseGeral
 
             return json_encode(array('chave' => $chaveRetorno));
         }
-
-
-        //*/
     }
 
     public function defineTamanhoImagem($arquivo, $tipo, $largEnt = 1024, $altEnt = 768): array
@@ -1383,15 +1309,13 @@ class ClasseGeral extends ConClasseGeral
 
         $chave = $this->altera($tabela, $dados, $dados[$campoChave], false);
 
-        return $chave > 0 ? json_encode(['sucesso' => $chave]) : json_encode(['erro' => 'Erro ao Alterar, tente novamente']);
-        //*/
+        return $chave > 0 ? json_encode(['sucesso' => $chave]) : json_encode(['erro' => 'Erro ao Alterar, tente novamente']);        
     }
 
     public
     function valorExiste($parametros)
     {
-        $p = $parametros;
-        //print_r($parametros);
+        $p = $parametros;        
 
         $campos_tabela = $this->campostabela($p['tabela']);
         $s['tabela'] = $p['tabela'];
@@ -1463,23 +1387,8 @@ class ClasseGeral extends ConClasseGeral
 
             $nova_chave = $this->altera($tabelaOriginal, $dados, $p['chave'], false);
 
-//            foreach ($relacionamentos as $key => $val) {
-//                $campo_chave = $this->campochavetabela($val['tabela_secundaria']);
-//                $dadosTR = $this->retornosqldireto("select * from $val[tabela_secundaria] where $val[campo_secundario] = $p[chave]");
-//                foreach ($dadosTR as $dadosAlterar) {
-//                    $dadosAlterar['disponivel'] = 'E';
-//                    $chaveAlteracao = $this->altera($val['tabela_secundaria'], $dadosAlterar);
-//                }
-//            }
         } else { //Excluindo os campos
             //Tenho que fazer o log para essa situação.
-
-//            foreach ($relacionamentos as $key => $val) {
-//                $campoChaveRelacionamento = $this->campochavetabela($val['tabela_secundaria']);
-//                $sql2 = "delete FROM $val[tabela_secundaria] WHERE $val[campo_secundario] = $p[chave] AND $campoChaveRelacionamento > 0";
-//                $this->executasql($sql2);
-//            }
-
             $nova_chave = $this->exclui($p['tabela'], $campoChave, $p['chave'], 'nenhuma', false);
         }
 
@@ -1490,14 +1399,14 @@ class ClasseGeral extends ConClasseGeral
         if (is_file($caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php')) {
 
             require_once $caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php';
-            $config = new \configuracoesTabelas();
+            $config = new ('\\configuracoesTabelas')();
             if (method_exists($config, $nomeTabela)) {
                 $configuracoesTabela = $config->$nomeTabela();
 
                 if (isset($configuracoesTabela['classe']) && file_exists($caminhoApiLocal . 'apiLocal/classes/' . $configuracoesTabela['classe'] . '.class.php')) {
                     require_once $caminhoApiLocal . 'apiLocal/classes/' . $configuracoesTabela['classe'] . '.class.php';
                     if (isset($configuracoesTabela['aoExcluir']['classe'])) {
-                        $classeAE = new $configuracoesTabela['aoExcluir']['classe']();
+                        $classeAE = new ('\\' .  $configuracoesTabela['aoExcluir']['classe'])();
                         if (method_exists($classeAE, $configuracoesTabela['aoExcluir']['funcaoExecutar'])) {
                             $fucnaoAE = $configuracoesTabela['aoExcluir']['funcaoExecutar'];
                             $classeAE->$fucnaoAE($p, $aoExcluir);
@@ -1508,8 +1417,6 @@ class ClasseGeral extends ConClasseGeral
         }
 
         return json_encode(array('chave' => $nova_chave));
-
-        //*/
     }
 
     public function excluirAnexosTabela($tabela, $chave)
@@ -1521,11 +1428,10 @@ class ClasseGeral extends ConClasseGeral
                 $this->excluiranexo($anexo, '');
             }
 
-            @session_start();
             $caminho = $_SESSION[session_id()]['caminhoApiLocal'];
             $diretorio = $caminho . '/arquivos_anexos/' . $tabela . '/' . $chave . '/';
 
-            $dir = new gerenciaDiretorios();
+            $dir = new \ClasseGeral\GerenciaDiretorios();
             $dir->apagadiretorio($diretorio);
         }
     }
@@ -1555,7 +1461,7 @@ class ClasseGeral extends ConClasseGeral
 //        //Nova funcao que vai verificar se tem na classe alguma funcao chamada aoAnexar
         if (file_exists($arquivoClasse)) {
             require_once $arquivoClasse;
-            $classe = new $nomeClase();
+            $classe = new  $nomeClasse();
             
             if (method_exists($classe, 'aoExcluirAnexos')) {
                 $classe->aoExcluirAnexos($anexo);
@@ -1627,8 +1533,7 @@ class ClasseGeral extends ConClasseGeral
 
     public function buscarSessao($var, $tipoRetorno = 'json')
     {
-        $this->carregarFuncoes();
-        $fun = new manipulaSessao();
+        $fun = new \ClasseGeral\ManipulaSessao();
         return $tipoRetorno == 'json' ? json_encode($fun->pegar($var)) : $fun->pegar($var);
     }
 

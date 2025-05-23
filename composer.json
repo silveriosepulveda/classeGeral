@@ -4,7 +4,10 @@
   "type": "library",
   "require": {
     "php": "^7.2 || ^8.0",
-    "fpdf/fpdf": "^1.86"
+    "fpdf/fpdf": "^1.86",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-gd": "*"
   },
   "autoload": {
     "psr-4": {
