@@ -52,7 +52,7 @@ class ClasseGeral extends ConClasseGeral
                 if ($selecionado == 'false') {
                     $_SESSION[session_id()]['consultas'][$tela]['parametrosConsulta']['todosItensSelecionados'] = $selecionado;
                 }
-                $_SESSION[session_id()]['consultas'][$tela]['lista'][$key]['selecionado'] = $selecionado;                
+                $_SESSION[session_id()]['consultas'][$tela]['lista'][$key]['selecionado'] = $selecionado;
             }
         }
     }
@@ -107,7 +107,7 @@ class ClasseGeral extends ConClasseGeral
 
         $tabelaConsulta = $p['tabelaConsulta'] ?? $tabela;
         $temCampoDisponivelNoFiltro = false;
-        
+
         $sessao = new \ClasseGeral\ManipulaSessao();
 
         $configuracoesTabela = $this->buscaConfiguracoesTabela($tabelaConsulta);
@@ -191,7 +191,7 @@ class ClasseGeral extends ConClasseGeral
             $s['comparacao'][] = array('varchar', 'arquivado', '!=', 'E');
         }
 
-        if (isset($campos_tabela['disponivel']) && !$temCampoDisponivelNoFiltro) {            
+        if (isset($campos_tabela['disponivel']) && !$temCampoDisponivelNoFiltro) {
             $s['comparacao'][] = array('inArray', 'disponivel', '=', $valoresConsiderarDisponivel);
         }
 
@@ -270,7 +270,7 @@ class ClasseGeral extends ConClasseGeral
             $retorno['paginacao']['qtdPaginas'] = 1;
             $retorno['paginacao']['limitePaginaAtiva'] = 0;
         }
-        
+
         //Testando a rotina de incluir as informacoes de tabelas relacionadas ja na consulta
         if ($incluirRelacionados) {
             $chaves = array();
@@ -286,7 +286,7 @@ class ClasseGeral extends ConClasseGeral
                     if ($chavesSQL != '') {
                         $sqlTabRel = "SELECT $camposBuscar FROM $tabelaRelacionada WHERE $p[campo_chave] IN ($chavesSQL)";
                         $sqlTabRel .= isset($this->campostabela($tabelaRelacionada)['disponivel']) ? " and disponivel = 'S' " : '';
-                        
+
                         $dadosTabRel = $this->agruparArray($this->retornosqldireto(strtolower($sqlTabRel), '', $tabelaRelacionada), $p['campo_chave'], false);
                     }
                 }
@@ -302,7 +302,7 @@ class ClasseGeral extends ConClasseGeral
         $classeTabela = isset($configuracoesTabela['classe']) ? $configuracoesTabela['classe'] : $this->nomeClase($tabela);
 
         $classeAposFiltrar = $this->criaClasseTabela($classeTabela);
-        $funcaoAposFiltrar = isset($parametros['acaoAposFiltrar']) && $parametros['acaoAposFiltrar'] != 'undefined' ? $parametros['acaoAposFiltrar'] : 'aposFiltrar';        
+        $funcaoAposFiltrar = isset($parametros['acaoAposFiltrar']) && $parametros['acaoAposFiltrar'] != 'undefined' ? $parametros['acaoAposFiltrar'] : 'aposFiltrar';
         $temFuncaoAposFiltrar = $this->criaFuncaoClasse($classeAposFiltrar, $funcaoAposFiltrar);
 
         if ($temFuncaoAposFiltrar) {
@@ -318,14 +318,14 @@ class ClasseGeral extends ConClasseGeral
         $retornoSessao['lista'] = $retorno['lista'];
         $retornoSessao['parametrosSQL'] = $s;
 
-        $sessao->setar('consultas,' . $tela, $retornoSessao);        
+        $sessao->setar('consultas,' . $tela, $retornoSessao);
 
         $this->desconecta($s['dataBase']);
         if ($tipoRetorno == 'json') {
             return json_encode($retorno);
         } else if ($tipoRetorno == 'array') {
             return $retorno;
-        }        
+        }
     }
 
     private function resumoConsulta($parametros, $campos_tabela = array())
@@ -401,7 +401,7 @@ class ClasseGeral extends ConClasseGeral
                 $r = array();
                 $r['tabela'] = $keyTR;
                 $r['comparacao'][] = array('int', $campoRelacionamentoTR, '=', $p['chave']);
-                
+
                 if (array_key_exists('disponivel', $camposTabelaRelacionada)) {
                     $r['comparacao'][] = array('varchar', 'disponivel', '=', 'S');
                 }
@@ -409,7 +409,7 @@ class ClasseGeral extends ConClasseGeral
                 $r['ordem'] .= isset($valTR['sentidoOrdem']) ? ' ' . $valTR['sentidoOrdem'] : '';
 
                 $nomeArrayRelacionado = isset($valTR['raizModelo']) ? $valTR['raizModelo'] : strtolower($this->nometabela($keyTR));
-                
+
                 if (isset($valTR['verificarEmpresaUsuario']) && $valTR['verificarEmpresaUsuario']) {
                     $r['verificarEmpresaUsuario'] = true;
                 }
@@ -423,7 +423,7 @@ class ClasseGeral extends ConClasseGeral
                 }
 
                 $retornoR = $this->retornosqldireto($r, 'montar', $keyTR, false, false);
-                
+
                 if (isset($valTR['tabelasSubRelacionadas'])) {
                     foreach ($retornoR as $keyR => $valR) {
                         $sR = array();
@@ -440,7 +440,7 @@ class ClasseGeral extends ConClasseGeral
                             }
                             $sR['ordem'] = isset($valS['campo_valor']) ? $valS['campo_valor'] : '';
                             $retornoSr = $this->retornosqldireto($sR, 'montar', $keyS, false, false);
-                
+
                             if (sizeof($retornoSr) > 0) {
                                 if (isset($valS['temAnexos']) && $valS['temAnexos']) {
                                     $tempSR = $this->agruparArray($retornoSr, $valS['campo_chave']);
@@ -709,7 +709,7 @@ class ClasseGeral extends ConClasseGeral
         }
 
         $a = [];
-        if (sizeof($arquivos) > 0) {
+        if (is_array($arquivos) && sizeof($arquivos) > 0) {
             foreach ($arquivos as $campoArquivo => $arqTemp) {
                 $arqTemp['tipo'] = 'files';
                 $arqTemp['nomeAnexo'] = $campoArquivo;
@@ -1309,13 +1309,13 @@ class ClasseGeral extends ConClasseGeral
 
         $chave = $this->altera($tabela, $dados, $dados[$campoChave], false);
 
-        return $chave > 0 ? json_encode(['sucesso' => $chave]) : json_encode(['erro' => 'Erro ao Alterar, tente novamente']);        
+        return $chave > 0 ? json_encode(['sucesso' => $chave]) : json_encode(['erro' => 'Erro ao Alterar, tente novamente']);
     }
 
     public
     function valorExiste($parametros)
     {
-        $p = $parametros;        
+        $p = $parametros;
 
         $campos_tabela = $this->campostabela($p['tabela']);
         $s['tabela'] = $p['tabela'];
@@ -1406,7 +1406,7 @@ class ClasseGeral extends ConClasseGeral
                 if (isset($configuracoesTabela['classe']) && file_exists($caminhoApiLocal . 'apiLocal/classes/' . $configuracoesTabela['classe'] . '.class.php')) {
                     require_once $caminhoApiLocal . 'apiLocal/classes/' . $configuracoesTabela['classe'] . '.class.php';
                     if (isset($configuracoesTabela['aoExcluir']['classe'])) {
-                        $classeAE = new ('\\' .  $configuracoesTabela['aoExcluir']['classe'])();
+                        $classeAE = new ('\\' . $configuracoesTabela['aoExcluir']['classe'])();
                         if (method_exists($classeAE, $configuracoesTabela['aoExcluir']['funcaoExecutar'])) {
                             $fucnaoAE = $configuracoesTabela['aoExcluir']['funcaoExecutar'];
                             $classeAE->$fucnaoAE($p, $aoExcluir);
@@ -1462,7 +1462,7 @@ class ClasseGeral extends ConClasseGeral
         if (file_exists($arquivoClasse)) {
             require_once $arquivoClasse;
             $classe = new  $nomeClasse();
-            
+
             if (method_exists($classe, 'aoExcluirAnexos')) {
                 $classe->aoExcluirAnexos($anexo);
             } else {

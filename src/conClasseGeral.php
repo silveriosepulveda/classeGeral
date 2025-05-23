@@ -20,13 +20,9 @@ class ConClasseGeral
     private $camposTabelas = [];
 
     public function buscaUsuarioLogado()
-    {
-        //$this->carregarFuncoes();
-
-        require_once __DIR__ . '/Funcoes.php';
+    {     
         $sessao = new \ClasseGeral\ManipulaSessao();
-        return $sessao->pegar('usuario');
-        
+        return $sessao->pegar('usuario');        
     }
 
     public function carregarFuncoes()
@@ -103,21 +99,16 @@ class ConClasseGeral
                 }
             } else if (is_array($tipo)) {
                 //Nesse caso e um array
-//                echo 'tipo e array' . $this->q;
-//                print_r($camposIgnorar);
                 $camposIgnorar = isset($tipo['ignorarObrigatorio']) ? array_merge($camposIgnorar, $tipo['ignorarObrigatorio']) : [];
-                //print_r($camposIgnorar);
                 //Varrendo o bloco para validar cada no
 
                 foreach (isset($dados[$campo]) ? $dados[$campo] : [] as $keyBloco => $dadosValidarBloco) {
-
                     foreach ($dadosValidarBloco as $campoValidarBloco => $valorValidar) {
                         //Vendo se o campo e obrigatorio
                         if (isset($camposObrigatorios[$campo][$campoValidarBloco])) {
                             //Caso o campo seja obribatorio valido ele
                             if (!$this->validarCampo($valorValidar)) {
                                 $ignorarCampo = isset($camposIgnorar[$campoValidarBloco]) ? $camposIgnorar[$campoValidarBloco] : [];
-
 
                                 if (sizeof($ignorarCampo) == 1) {
                                     //Neste caso sera ignorado apenas com um valor
@@ -152,8 +143,7 @@ class ConClasseGeral
                                         }
 
                                         $ignorar = $this->validarCampo($valorCampoIgnorar) && $compara->compararValor($valorCampoIgnorar, $val['operador'], $valorComparar);
-                                        //echo $campoBuscarDados . ' -- '. $valorCampoIgnorar . ' -- ' . $val['operador'] . ' -- '  . $valorComparar . ' - ' .$ignorar . $this->q;
-
+                                        
                                         $tipoIgnorar = isset($val['tipoIgnorar']) ? $val['tipoIgnorar'] : 'e';
 
                                         if (!$ignorar) {
@@ -185,8 +175,7 @@ class ConClasseGeral
             }
         }
 
-        return $retorno;
-        //*/
+        return $retorno;        
     }
 
     public function validarCampo($valor)
@@ -258,7 +247,7 @@ class ConClasseGeral
 
     public function campostabela($tabela, $dataBase = '', $tiporetorno = 'padrao')
     {
-        $tabela = strtolower($tabela);
+        $tabela = is_string($tabela) ? strtolower($tabela) : '';
 
         $configTabela = $this->buscaConfiguracoesTabela($tabela);
 
@@ -317,7 +306,7 @@ class ConClasseGeral
             require_once $caminhoAPILocal . 'apiLocal/classes/configuracoesTabelas.class.php';
 
 
-            $configuracoesTabelaTemp = new \configuracoesTabelas();
+            $configuracoesTabelaTemp = new('\\configuracoesTabelas')();
 
             if (method_exists($configuracoesTabelaTemp, $tabela)) {
                 $configuracoesTabela = $configuracoesTabelaTemp->$tabela();
@@ -327,14 +316,13 @@ class ConClasseGeral
                 $configuracoesTabela['valoresConsiderarDisponivel'] = $configuracoesTabelaTemp->valoresConsiderarDisponivel;
         }
         return $configuracoesTabela;
-//*/
     }
 
     public function pegaDataBase($tabela = '', $dataBase = '')
     {
         $dados_con = $this->pegaCaminhoApi() . 'apiLocal/classes/dadosConexao.class.php';
         require_once($dados_con);
-        $this->db = new \dadosConexao;
+        $this->db = new ('\\dadosConexao')();
 
         $configuracoesTabela = [];
 
@@ -351,7 +339,6 @@ class ConClasseGeral
                 $retorno = $this->db->conexaoPadrao;
 
         return $retorno;
-//*/
     }
 
     public function conecta($dataBase = '')
@@ -368,71 +355,52 @@ class ConClasseGeral
             }
 
             date_default_timezone_set('America/Sao_Paulo');
-            //$dataBase = isset($this->db->bases) && isset($this->db->bases[$dataBase]) ? $dataBase : $this->db->conexaoPadrao;
-//print_r($this->db);
+            
             $servidor = $this->db->bases[$dataBase]['servidor'];
             $usuario = $this->db->bases[$dataBase]['usuario'];
             $senha = $this->db->bases[$dataBase]['senha'];
 
-            //echo $servidor .  ' -- ' . $usuario . ' -- ' . $senha . ' -- ' . $dataBase;
             $this->Conexoes[$dataBase] = new \mysqli($servidor, $usuario, $senha, $dataBase);
-
-            //$this->Conexoes[$dataBase]->set_charset('utf8');
+            
             mysqli_set_charset($this->Conexoes[$dataBase], "utf8");
-//*/
-        } else {
-        }
+
+        } 
     }
 
     public function desconecta($dataBase)
     {
-        //mysqli_kill($this->Conexoes[$dataBase], $this->Conexoes[$dataBase]->thread_id);
-        //mysqli_close($this->Conexoes[$dataBase]);
-
-//        $this->Conexoes[$dataBase]->kill($this->Conexoes[$dataBase]->thread_id);
-//        $this->Conexoes[$dataBase]->close();
+        
     }
 
     public function executasql($sql, $dataBase = '')
     {
         $TipoBase = isset($this->db->TipoBase) ? $this->db->TipoBase : 'MySQL';
-
-        //$dataBase = $dataBase != '' && isset($this->db->bases[$dataBase]) ? $dataBase : $this->db->conexaoPadrao;
+        
         $dataBase = $this->pegaDataBase('', $dataBase);
 
         $this->conecta($dataBase);
 
-        //print_r($this->db->bases[$dataBase]['tipo_base']);
+
         if ($this->db->bases[$dataBase]['tipo_base'] === 'MySQL') {
             $con = $this->Conexoes[$dataBase];
             ini_set('error_reporting', '~E_DEPRECATED');
-            // echo 'sql = '.  $sql . "\n";
             $con->query('set sql_mode=""');
-            //echo $sql . $this->q;
             $retorno = $con->query($sql);
-            if (!$retorno) {
-                echo $con->error . "\n";
-                echo $sql . "\n";
+            if (!$retorno) {                
                 $this->desconecta($dataBase);
-            }
-            //echo $sql . "\n";
+            }            
         } else if ($TipoBase === 'SQLite') {
             $retorno = $this->ConexaoBase->query($sql);
         }
         return $retorno;
-        //*/
     }
 
     public function retornosql($resultado)
-    {
-        //$this->conecta('central_resultados');
-        //print_r($resultado);
+    {        
         $TipoBase = isset($this->db->TipoBase) ? $this->db->TipoBase : 'MySQL';
         if ($TipoBase === 'MySQL') {
             if ($resultado) {
                 return $resultado->fetch_assoc();
-            } else {
-                //$this->desconecta('');
             }
         } else if ($TipoBase === 'SQLite') {
             return $resultado->fetchArray(SQLITE3_ASSOC);
@@ -454,25 +422,21 @@ class ConClasseGeral
 
             if (isset($configuracoesTabela['campoChave'])) {
                 return $configuracoesTabela['campoChave'];
-            } else {
-                //$base = $this->db->MyBase;
+            } else {                
                 $base = $dataBase;
                 $sql = "SELECT c.COLUMN_NAME AS chave_primaria FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE c";
                 $sql .= " WHERE c.TABLE_SCHEMA = '$base' AND c.TABLE_NAME = '$tabela'";
                 $sql .= " AND c.CONSTRAINT_NAME = 'PRIMARY' ";
-
-                //echo $sql . $this->q;
+                
                 $lin = $this->retornosqldireto($sql, '', $tabela)[0];
                 return $lin['chave_primaria'];
             }
         }
-        //*/
     }
 
     public function nometabela($tabela)
     {
-        //$tabela = strtolower($tabela);
-        $tabela = strtolower($tabela);
+        $tabela = strtolower((string)$tabela);
         if (substr($tabela, 0, 4) == 'view') {
             $tabela = trim(substr($tabela, 5, 99));
         }
@@ -516,17 +480,13 @@ class ConClasseGeral
                         $tipo = isset($campos[$campo]['tipoConsulta']) && $campos[$campo]['tipoConsulta'] != '' ? $campos[$campo]['tipoConsulta'] : $campos[$campo]['tipo'];
 
                         $retorno[$key][$campo] = $formatar ? $this->formatavalorexibir($valor, $tipo, false) : $valor;
-                        //echo $campo . ' -- ' . $tipo .  ' -- ' . $valor . ' -- ' . $retorno[$key][$campo] .  $this->q;
                     }
                 }
             }
         }
 
         $this->desconecta($dataBase);
-        //*/
         return $retorno;
-        //*/
-
     }
 
     /**
@@ -557,11 +517,9 @@ class ConClasseGeral
         $tabelaConsulta = isset($p['tabelaConsulta']) ? $p['tabelaConsulta'] : $tabela;
 
         $tabelaConsulta = strtolower($tabelaConsulta);
-        //$tabela_buscar_chave_primaria = $this->nometabela($tabelaConsulta);
         $campo_chave = '';
 
         if ($campo_chavee != '') {
-            //$campo_chave = strtolower($campo_chavee);
             $campo_chave = $campo_chavee;
         } else if ($this->campochavetabela($tabela) != '') {
             $campo_chave = $this->campochavetabela($tabela);
@@ -589,7 +547,7 @@ class ConClasseGeral
 
         if (is_array($campos)) {
             foreach ($campos as $campo => $valuesCampo) {
-                $campo = strtolower($campo);
+                $campo = strtolower((string)$campo);
                 $temp = explode('--', $campo);
                 $campo = sizeof($temp) > 1 ? $temp[1] : $campo;
 
@@ -714,13 +672,10 @@ class ConClasseGeral
                         $teste = ' AND TP.' . $campo . ' ' . $operador . ' ' . $op[3];
                         $sql .= ' AND TP.' . $campo . ' ' . $operador . ' ' . $op[3];
                     } else {
-                        //print_r($op);
                         $sql .= ' AND TP.' . $campo . ' ' . $operador . ' ' . $valor;
-                        //echo $campo . ' -- ' . $tipo . ' -- ' . $valor . $this->q;
                     }
                 } else if (is_array($op[0])) { //Neste caso é uma comparação utilizando or primeiro vou fazer para duas comparações, depois posso expandir para infinitas
-                    $tipos = $op[0];
-                    //$campo = strtolower($op[1]);
+                    $tipos = $op[0];                    
                     $campo = $op[1];
                     $operadores = $op[2];
                     $valores = $op[3];
@@ -756,8 +711,7 @@ class ConClasseGeral
 
         //Acrescentei a comparacao do campo chave, pois quando tem ) antes do collate da erro.
         $sql .= " and TP.$campo_chave >= 0 ";//collate utf8_unicode_ci ";
-        // echo $sql;
-
+        
         if (isset($p['ordem'])) {
             $temp = strtolower($p['ordem']);
             //Separo por virgula os campos que vao ordenar
@@ -786,8 +740,7 @@ class ConClasseGeral
             }
         }
 
-        return $sql;
-        //*/
+        return $sql;        
     }
 
     public function pegaChaveUsuario()
@@ -796,22 +749,17 @@ class ConClasseGeral
     }
 
     public function retornavalorparasql($tipo, $valor, $origem = 'consulta', $campo = '')
-    {
-
-        //echo 'valor 1 ' . $valor . ' -- ' . $tipo. $this->q;
+    {        
         if ($valor === 'undefined')
             $valor = null;
 
         if (($tipo == 'varchar' || $tipo == 'char') && !is_array($valor)) {
-            //$codificacao = mb_detect_encoding($valor);
-            $valor = "'" . trim(str_replace("'", "\'", $valor), '"') . "'";
-        } else if ($tipo == 'longtext' || $tipo == 'text') {
-            //echo 'longtex';
+                 $valor = "'" . trim(str_replace("'", "\'", $valor), '"') . "'";
+        } else if ($tipo == 'longtext' || $tipo == 'text') {     
             if ($valor != 'undefined') {
                 $valor = stripslashes($valor);
                 //Fazendo esta linha para salvar as ' dentro de '
-                $valor = str_replace("'", "\'", $valor);
-                //echo $this->q . ' -- ' . $valor . '-- ' . $this->q;
+                $valor = str_replace("'", "\'", $valor);                
                 $valor = "'" . $valor . "'";
             } else {
                 $valor = 'null';
@@ -841,9 +789,7 @@ class ConClasseGeral
                 }
             } else if ($valor == '' || $valor == 'undefined') {
                 $valor = 'null';
-            }
-            //if (strtolower($valor) != 'CURRENT_DATE')
-            //  $valor = "'" . $valor . "'";
+            }            
         } else if ($tipo == 'time') {
             if (strtolower($valor) != 'CURRENT_TIME')
                 $valor = "'" . $valor . "'";
@@ -864,11 +810,7 @@ class ConClasseGeral
             }
         } else if ($tipo == 'json') {
             if (!is_array($valor)) {
-//                $valor = trim($valor, '"');
-//                $valor = str_replace("'", "\'", $valor);
-                //echo $valor . $this->q;
                 $valor = $valor != '' ? "JSON_QUOTE('" . $valor . "') " : 'null';
-                //$valor = $valor != '' ?  utf8_decode($valor)  : 'null';
             } else {
                 $valor = $valor != '' ? "JSON_QUOTE('" . json_encode($valor, JSON_UNESCAPED_UNICODE) . "')" : 'null';
             }
@@ -913,13 +855,11 @@ class ConClasseGeral
     {
         $retorno = '';
 
-        //ini_set("display_errors", 0);
         if ($tipo == 'int' || $tipo == 'bigint' || $tipo == 'tinyint') {
             $retorno = $valor != '' && $valor != null ? (int)$valor : $valor;
 
         } else if ($tipo == 'float' || $tipo == 'double' || $tipo == 'decimal' || $tipo == 'real') {
-            if (sizeof(explode(',', $valor)) > 1) {
-                //$retorno = (is_float($valor) > 0)  ? number_format($valor, 2, ',', '.') : $valor;
+            if (sizeof(explode(',', $valor)) > 1) {                
                 $valor = str_replace('.', '', $valor);
                 $valor = str_replace(',', '.', $valor);
             }
@@ -930,12 +870,8 @@ class ConClasseGeral
         } else if ($tipo == 'urlYoutube') {
             $retorno = str_replace('watch?v=', 'embed/', $valor);
         } else if ($tipo == 'longtext' || $tipo == 'text') {
-            //$retorno = base64_decode(htmlentities($valor));
-
-            //$retorno = htmlentities($valor);
-
+            
             if (substr(trim($valor), 0, 1) == '{') {
-
                 $retorno = json_decode(preg_replace('/(\r\n)|\n|\r/', '\\n', $valor), true);
             } else {
                 $retorno = $htmlentitie ? htmlentities($valor) : $valor;
@@ -954,8 +890,7 @@ class ConClasseGeral
                 }
             } else {
                 $retorno = '';
-            }
-            //echo $tipo . ' -- ' . $valor . ' -- ' . $retorno ."\n";
+            }        
         } else if ($tipo == 'time') {
             $retorno = substr($valor, 0, 5);
         } else if ($tipo == 'timestamp') {
@@ -963,15 +898,9 @@ class ConClasseGeral
                 $this->formatavalorexibir(explode(' ', $valor)[0], 'date') . ' ' . $this->formatavalorexibir(explode(' ', $valor)[1], 'time') : '';
         } else if ($tipo == 'varbinary') {
             $retorno = $valor;
-        } else if ($tipo == 'json') {
-            //$valor = str_replace("'", "\'", $valor);
-            //echo 'valor = ' . $valor . $this->q;
-
+        } else if ($tipo == 'json') {            
             $retorno = json_decode(preg_replace('/(\r\n)|\n|\r/', '\\n', $valor), true);
             $retorno = gettype($retorno) == 'string' ? json_decode($retorno, true) : $retorno;
-//echo 'retorno = ';
-            //print_r($retorno);
-            //echo ' retorno = ' . $retorno . ' -- ' . $this->q ;
         } else {
             $retorno = '';
         }
@@ -992,7 +921,6 @@ class ConClasseGeral
         $retorno = [];
         $classe = $this->nomeClase($classeEntrada);
 
-        //@session_start();
         $caminhoAPILocal = $_SESSION[session_id()]['caminhoApiLocal'];
         $arquivo = $caminhoAPILocal . 'apiLocal/classes/' . $classe . '.class.php';
 
@@ -1011,9 +939,7 @@ class ConClasseGeral
             $retorno['classe'] = isset($retorno['classe']) ? $retorno['classe'] : $classe;
 
             if (is_array($parametrosEnviados) && sizeof($parametrosEnviados) > 0) {
-                //$camposInseridos = [];
                 foreach ($parametrosEnviados as $campo => $valores) {
-                    //$camposInseridos[$campo] = [
                     $novoCampo = [
                         'texto' => isset($valores['texto']) ? $valores['texto'] : '',
                         'padrao' => isset($valores['valor']) ? $valores['valor'] : '',
@@ -1023,14 +949,12 @@ class ConClasseGeral
                     if (isset($retorno['campos'][$campo])) {
                         $novoCampo['atributos_input']['ng-disabled'] = isset($retorno['campos'][$campo]['atributos_input']['ng-disabled']) ?
                             $retorno['campos'][$campo]['atributos_input']['ng-disabled'] : true;
-                        //print_r($novoCampo);
                     } else {
                         $novoCampo['atributos_input']['ng-disabled'] = true;
                     }
                     $retorno['campos'][$campo] = isset($retorno['campos'][$campo]) ?
                         array_merge($retorno['campos'][$campo], $novoCampo) : $novoCampo;
                 }
-                //$retorno['campos'] = array_merge($camposInseridos, $retorno['campos']);
             }
         }
 
@@ -1044,8 +968,7 @@ class ConClasseGeral
         }
 
 
-        return $tipoRetorno == 'array' ? $retorno : json_encode($retorno);
-        //*/
+        return $tipoRetorno == 'array' ? $retorno : json_encode($retorno);    
     }
 
     public function nomeClase($tabela)
@@ -1088,7 +1011,6 @@ class ConClasseGeral
             }
         }
         return $retorno;
-//*/
     }
 
     public function montaSQLBetween($campo, $valor)
@@ -1111,14 +1033,11 @@ class ConClasseGeral
 
     public function formatarValoresExibir($tabela, $valores)
     {
-        // echo $tabela . "\n";
         $campos = array_change_key_case($this->campostabela($tabela), CASE_LOWER);
 
         foreach ($campos as $campo => $val) {
-
             if (isset($valores[$campo])) {
                 $valores[$campo] = $this->formatavalorexibir($valores[$campo], $val['tipo']);
-
             }
         }
         return $valores;
@@ -1131,7 +1050,6 @@ class ConClasseGeral
         if (in_array($campo, $campos)) {
             $temp = $this->retornosqldireto(strtolower("SELECT DISTINCT $campo from $tabela ORDER BY $campo"), '', $tabela);
             foreach ($temp as $item) {
-                //print_r($item);
             }
         }
     }
@@ -1140,14 +1058,9 @@ class ConClasseGeral
     {
         $campos_tabela = $this->campostabela($tabela);
         $retorno['filtrosExibir'] = '';
-        //$retorno['sql'] = '';
 
-        //require_once($_SESSION[session_id()]['caminhoApiLocal'] . 'api/BaseArcabouco/funcoes.class.php');
-        //$txt = new manipulaStrings();
         $txt = new ManipulaStrings();
-        //$filtros = json_decode($_GET['filtros'], true);
         foreach ($filtros as $key => $val) {
-
             if ($val['campo'] != '') {
                 $retorno['filtrosExibir'] .= $retorno['filtrosExibir'] != '' ? ' e ' : '';
 
@@ -1172,7 +1085,6 @@ class ConClasseGeral
                     $retorno['filtrosExibir'] .= $val['campo'] . ' ' . $operador . ' ' . $val['valor'];
                     $campo = strtolower($val['campo']);
                 }
-                //$retorno['sql'] .= ' AND ' . $campo . ' ' . $val['operador'] . $this->retornavalorparasql($campos_tabela[$campo]['tipo'], $txt->limparacentos($val["valor"], false));
             }
         }
         return $retorno;
@@ -1181,7 +1093,7 @@ class ConClasseGeral
     public function qtditensselecionados($tabela, $campo, $valor)
     {
         $this->conecta();
-        $tabela = strtolower($tabela);
+        $tabela = strtolower((string)$tabela);
         $campo = strtolower($campo);
         $sql = "SELECT COALESCE(COUNT($campo), 0) AS QTD FROM $tabela WHERE $campo = $valor";
         $res = $this->executasql($sql);
@@ -1265,7 +1177,6 @@ class ConClasseGeral
                 //Separo pelo espaco, pois pode ter desc na frente
                 $ordem = explode(' ', $campo_o);
 
-                //echo $ordem[0] . '<br>' . $ordem[1];
                 if (array_key_exists($ordem[0], $campos_tabela)) {
                     $sql .= isset($ordem[1]) ? " ORDER BY $ordem[0] $ordem[1]" : " ORDER BY $ordem[0]";
                 }
@@ -1280,7 +1191,6 @@ class ConClasseGeral
             }
         }
         return $sql;
-        //*/
     }
 
     public function tabelasbase()
@@ -1308,7 +1218,7 @@ class ConClasseGeral
     public function valorexibirconsulta($tabela, $campo, $valor)
     {
         $retorno = '';
-        $tabela = strtolower($tabela);
+        $tabela = strtolower((string)$tabela);
         $campo = strtolower($campo);
 
         $tipo = $this->tipodadocampo($tabela, $campo);
@@ -1331,7 +1241,6 @@ class ConClasseGeral
 
     public function objetoexistesimples($parametros)
     {
-        //print_r($parametros);/*
         $tabela = strtolower($parametros['tabela']);
         $config = $this->buscaConfiguracoesTabela($tabela);
         $tabela = $config['tabelaOrigem'] ?? $tabela;
@@ -1353,9 +1262,7 @@ class ConClasseGeral
         if ($chave > 0) {
             $sql .= " AND $campo_chave <> $chave";
         }
-        //$retorno['sql'] = $sql;
-        //echo $sql;
-        //$res = $this->executasql($sql);
+
         $obj = $this->retornosqldireto($sql, '', $tabela);
 
         $retorno['existe'] = 0;
@@ -1369,7 +1276,6 @@ class ConClasseGeral
         }
 
         return json_encode($retorno);
-        //*/
     }
 
     public function objetoexiste($tabela, $campo, $valor, $chave_primaria = '', $campo_tab_pri = '', $valor_ctp = '')
@@ -1388,7 +1294,7 @@ class ConClasseGeral
             $campo_chave = $this->campochavetabela($tabela);
             $sql .= " AND $campo_chave != $chave_primaria";
         }
-//echo $sql;
+
         $res = $this->executasql($sql, $this->pegaDataBase($tabela));
         if ($this->linhasafetadas() > 0) {
             return true;
@@ -1412,7 +1318,7 @@ class ConClasseGeral
             $campo_chave = $this->campochavetabela($tabela);
             $sql .= " AND $campo_chave != $chave_primaria";
         }
-        //echo $sql . "\n";
+
         $temp = $this->retornosqldireto($sql);
 
         if (sizeof($temp) > 0) {
@@ -1467,7 +1373,7 @@ class ConClasseGeral
         $chave = $chave;
         //buscando os campos da tabela
         $campos = $this->campostabela($tabela);
-        //print_r($campos);
+
         $retorno = array();
         //Montando o sql
         $sql = "SELECT * FROM $tabela WHERE $campo_chave = $chave";
@@ -1538,7 +1444,6 @@ class ConClasseGeral
             echo $sql;
         }
         return $chave;
-        //*/
     }
 
     /**
@@ -1566,7 +1471,6 @@ class ConClasseGeral
             echo $sql;
         }
         return $lin;
-        //*/
     }
 
     public function buscadadosalterar($tabela, $campo_chave = '', $chave = 0, $mostrarsql = false)
@@ -1578,7 +1482,6 @@ class ConClasseGeral
 
         //buscando os campos da tabela
         $campos = $this->campostabela($tabela);
-        //print_r($campos);
         $retorno = array();
         //Montando o sql
         if ($campo_chave != '') {
@@ -1595,7 +1498,6 @@ class ConClasseGeral
 
         $retorno = count($retorno) == 1 ? $retorno[0] : array();
         return $retorno;
-        //*/
     }
 
     /**
@@ -1606,8 +1508,8 @@ class ConClasseGeral
      */
     public function buscatextoalterar($tabela, $campo)
     {
-        $tabela = strtolower($tabela);
-        $campo = strtolower($campo);
+        $tabela = strtolower((string)$tabela);
+        $campo = strtolower((string)$campo);
 
         $retorno = array();
         //Montando o sql
@@ -1623,14 +1525,34 @@ class ConClasseGeral
     public function buscadadosalterarjson($parametros)
     {
         $p = array();
-        parse_str($parametros, $p);
+        if (is_string($parametros)) {
+            if (is_string($parametros)) {
+                if (is_string($parametros)) {
+                    if (is_string($parametros)) {
+                        if (is_string($parametros)) {
+                            parse_str($parametros, $p);
+                        } else {
+                            $p = $parametros;
+                        }
+                    } else {
+                        $p = $parametros;
+                    }
+                } else {
+                    $p = $parametros;
+                }
+            } else {
+                $p = $parametros;
+            }
+        } else {
+            $p = $parametros;
+        }
         $tabela = strtolower($p['tabela']);
         $campo_chave = strtolower($p['campo_chave']);
         $chave = $p['chave'];
 
         //buscando os campos da tabela
         $campos = $this->campostabela($tabela);
-        //print_r($campos);
+
         $retorno = array();
         //Montando o sql
         $sql = "SELECT * FROM $tabela WHERE $campo_chave = $chave";
@@ -1666,7 +1588,6 @@ class ConClasseGeral
 
         //buscando os campos da tabela
         $campos = $this->campostabela($tabela);
-        //print_r($campos);
         $retorno = array();
         //Montando o sql
         $sql = "SELECT * FROM $tabela WHERE $campo_chave = $chave";
@@ -1685,8 +1606,6 @@ class ConClasseGeral
             } else if ($tipo == 'longtext') {
                 $texto = base64_decode($lin[$campo]);
                 $texto = utf8_decode($texto);
-                //$texto = strip_tags($texto);
-                //$texto = htmlentities($texto);
                 $retorno[strtolower($campo)]['valor'] = $texto;
             } else if ($tipo == 'date') {
                 $retorno[strtolower($campo)]['valor'] = date('d/m/Y', strtotime($lin[$campo]));
@@ -1697,8 +1616,7 @@ class ConClasseGeral
     }
 
     public function altera($tabela, $dados, $chave = 0, $mostrarsql = false, $inserirLog = true)
-    {
-        //print_r($dados);
+    {        
         //Pegando os campos da tabela
         $tabelaOriginal = $tabela;
         $tabela = $this->nometabela($tabela);
@@ -1723,8 +1641,6 @@ class ConClasseGeral
 
                 $valor = $dados[$campoD];
                 if (!is_array($valor)) {
-                    // $valor = $tipo == 'json' ? json_encode($dados[$campoD], JSON_UNESCAPED_UNICODE) :  $dados[$campoD];
-
                     if ($campoT == $campo_chave) {
                         $sql .= "$campoT = $valor";
                     } else {
@@ -1741,8 +1657,7 @@ class ConClasseGeral
                         $sql .= ", $campoT = $valor";
                     }
                 } else if ($tipo == 'json') {
-                    $valor = $this->retornavalorparasql($tipo, $valor, 'alteracao');
-                    //echo $valor;
+                    $valor = $this->retornavalorparasql($tipo, $valor, 'alteracao');                    
                     $sql .= ", $campoT = $valor";
                 }
 
@@ -1751,10 +1666,9 @@ class ConClasseGeral
                 unset($dados[$campoD]);
                 unset($campos[$campoT]);
                 //fazer rotina para inserçao em log pois nao existe na tabela o campo do formulário
-                //echo $campo . ' nao tem' . "\n";
+                
             }
         }
-        // echo $dados[$campo_chavem];
 
         $sql .= " WHERE $campo_chave = $dados[$campo_chavem]";
 
@@ -1764,11 +1678,8 @@ class ConClasseGeral
 
         $sR['tabela'] = $tabelaOriginal;
         $sR['comparacao'][] = ['int', $campo_chave, '=', $dados[$campo_chavem]];
-
-
-        //$this->retornosqldireto($sR, 'montar', $tabelaOriginal, false, false)[0];/*
+        
         $oldValue = $this->retornosqldireto($sR, 'montar', $tabelaOriginal, false, false)[0] ?? [];
-
 
         $res = $this->executasql($sql, $dataBase);
 
@@ -1787,16 +1698,10 @@ class ConClasseGeral
         } else {
             return 0;
         }
-        //*/
-
     }
 
     public function echaveestrangeira($tabela, $campo)
     {
-        //$tabela = strtolower($tabela);
-        //$campo = strtolower($campo);
-        //$sql = "SELECT COUNT(*) AS QTD FROM VIEW_RELACIONAMENTOS WHERE TABELA_SECUNDARIA = '$tabela' AND CAMPO_SECUNDARIO = '$campo'";
-
         $sql = "select count(*) as qtd from view_relacionamentos where tabela_secundaria = '$tabela' AND campo_secundario = '$campo'";
 
         $temp = $this->retornosqldireto($sql, '', 'view_relacionamentos')[0];
@@ -1834,7 +1739,6 @@ class ConClasseGeral
             echo $sql;
         }
 
-        // $res = $this->executasql($sql);
         $tempValor = $this->retornosqldireto("select * from $tabela where $campo_chave = $chave", '', $tabela);
         $valor = json_encode($tempValor[0] ?? null, JSON_UNESCAPED_UNICODE);
 
@@ -1859,7 +1763,6 @@ class ConClasseGeral
             return $chave;
         }
         ini_set("display_errors", 1);
-//*/
     }
 
     public function incluirLog($tabela, $chave_tabela, $acao, $valorAnterior = [], $valorNovo = '')
@@ -1869,15 +1772,9 @@ class ConClasseGeral
         $chaveUsuario = $this->pegaChaveUsuario();
         $chaveUsuario = $chaveUsuario > 0 ? $chaveUsuario : 'null';
 
-        //ini_set('display_errors', 0);
-        //print_r($valorAnterior);
-        //print_r($valorNovo);
-
         if ($acao == 'Alteração') {
             foreach ($valorAnterior as $campo => $valor) {
-                //echo $valor . ' == ' . $valorNovo[$campo] . "\n";
-                if ($valor != $valorNovo[$campo]) {
-                    //echo $campo . 'Valores diferentes ' . $this->q;
+                if ($valor != $valorNovo[$campo]) {                    
                     $incluirLog = true;
                 }
             }
@@ -1905,14 +1802,12 @@ class ConClasseGeral
             ];
 
             $chave = $this->inclui('eventos_sistema', $dados, 0, false);
-        }
-        //*/
+        }        
         return $chave;
     }
 
     public function pegaChaveAcesso()
-    {
-        @session_start();
+    {        
         return isset($_SESSION[session_id()]['usuario']['chave_acesso']) ? $_SESSION[session_id()]['usuario']['chave_acesso'] : null;
     }
 
@@ -2002,8 +1897,7 @@ class ConClasseGeral
                 $einteiro = false;
                 $ezero = false;
 
-                //echo $campoT . ' -- ' . $valor . ' -- ' . $tipo . $this->q;
-                if ($valor === 'chave_usuario_logado') {
+                     if ($valor === 'chave_usuario_logado') {
                     $valor = $this->pegaChaveUsuario();
                 } else {
                     $einteiro = trim($tipo) == 'int';
@@ -2026,7 +1920,6 @@ class ConClasseGeral
                 } else if ($tipo == 'date' && $valor != 'null' && substr($valor, 0, 1) != "'") {
                     $valor = "'$valor'";
                 }
-                //echo 'Novo Valor: -- ' . $valor . ' -- ' . $tipo . $this->q;
                 $sql .= ", $valor";
             }
         }
@@ -2039,8 +1932,6 @@ class ConClasseGeral
         if ($temCampoUsuario) {
             $sql .= ', ' . $dados['chave_usuario'];
         }
-
-        //print_r($dados);
 
         $sql .= ')';
 
@@ -2057,11 +1948,8 @@ class ConClasseGeral
             }
             return $nova_chave;
         } else {
-            //echo $sql;
-            //echo $nova_chave . "\n";
-            //return mysql_error();
         }
-        //*/
+
     }
 
     public function proximachave($tabela, $atualizarSequencia = false)
@@ -2073,8 +1961,7 @@ class ConClasseGeral
         //A sequencia esta na base principal
         $sql1 = "select chave as chave from sequencias where tabela = '$tabela'";
         $chave = $this->retornosqldireto($sql1, '', 'sequencias');
-        //print_r($chave) ; echo count($chave);
-
+        
         $proxima_chave_sequencia = sizeof($chave) == 1 ? $chave[0]['chave'] : 1;
 
         $proxima_chave_tabela = $this->maiorchavetabela($tabelaOriginal) + 1;
@@ -2091,9 +1978,7 @@ class ConClasseGeral
             $res2 = $this->executasql($sql2);
             $proxima_chave = $proxima_chave_tabela;
         } else if ($proxima_chave_sequencia >= $proxima_chave_tabela) {
-            //echo $proxima_chave_sequencia . ' -- ' . $proxima_chave_sequencia + 1 . $this->q;
-
-            if ($atualizarSequencia)
+                    if ($atualizarSequencia)
                 $proxima_chave_sequencia++;
             $sql2 = "update sequencias set chave = $proxima_chave_sequencia where tabela = '$tabela'";
             $res2 = $this->executasql($sql2);
@@ -2158,7 +2043,11 @@ class ConClasseGeral
     public function jsonpopulaselect($parametros)
     {
         $p = array();
-        parse_str($parametros, $p);
+        if (is_string($parametros)) {
+            parse_str($parametros, $p);
+        } else if (is_array($parametros)) {
+            $p = $parametros;
+        }
         $array = array();
         $tabela = strtolower($p['tabela']);
         $campo_chave = strtolower($p['campo_chave']);
@@ -2251,8 +2140,6 @@ class ConClasseGeral
 
         $textoIniciais = $usarIniciais ? '' : '%';
 
-        //echo $textoIniciais . ' -- usar iniciais = ' . var_dump($usarIniciais) ;
-
         $sql .= $texto != '' ? " AND LOWER(TP.$campo_valor) like '$textoIniciais" . strtolower($texto) . "%' COLLATE utf8_unicode_ci " : '';
         $chave2 = is_integer($chave2) && $chave2 > 0 ? $chave2 : '"' . $chave2 . '"';
 
@@ -2302,7 +2189,7 @@ class ConClasseGeral
         $configuracoesTabela = [];
         if (is_file($caminhoAPILocal . '/apiLocal/classes/configuracoesTabelas.class.php')) {
             require_once $caminhoAPILocal . '/apiLocal/classes/configuracoesTabelas.class.php';
-            $configuracoesTabelaTemp = new \configuracoesTabelas();
+            $configuracoesTabelaTemp = new ('\\configuracoesTabelas')();
 
             if (method_exists($configuracoesTabelaTemp, $tabela)) {
                 $configuracoesTabela = $configuracoesTabelaTemp->$tabela();
@@ -2424,8 +2311,7 @@ class ConClasseGeral
     public function textoparaarray($separador, $texto)
     {
         $retorno = array();
-
-        //$texto = settype($texto, 'string');
+        
         $temp = explode($separador, (string)$texto);
         /* @var $val type string */
         foreach ($temp as $val) {
@@ -2546,7 +2432,7 @@ class ConClasseGeral
                 $classe = new $classe();
             }
         }
-//echo 'classe = ' . $classe;
+
         if ($classe != '' && method_exists($classe, $funcao)) {
             return true;
         } else {
@@ -2586,19 +2472,7 @@ class ConClasseGeral
 
 
         $copiaSQLFinal = substr($sqlLocal, $inicioCopia, 3);
-
-        //echo $copiaSQLFinal . "\n";
-        //echo trim(substr($sqlLocal, $tamanho - 5, 5)) . "\n\n";
         $substituir = $copiaSQLFinal == 'AND' || trim(substr($sqlLocal, $tamanho - 5, 5)) == 'AND (' || trim(substr($sqlLocal, $tamanho - 2, 2) == 'OR');
-        //echo $substituir . "\n";
-        //echo $sql . "\n" . "\n";
-        // echo 'substituir = ' . $substituir . "\n";
-
-        //return $copiaSQLFinal == 'AND' ? '' : ' AND ';
         return $substituir ? '' : ' AND ';
     }
 }
-
-//$t = new conexao;
-//$t->completacampo('nome');
-
