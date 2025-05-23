@@ -42,7 +42,6 @@ class ConClasseGeral
 
     public function pegaCaminhoApi()
     {
-//        @session_start();
         if (isset($_SESSION[session_id()]['caminhoApiLocal']))
             return $_SESSION[session_id()]['caminhoApiLocal'];
         else
@@ -316,7 +315,9 @@ class ConClasseGeral
 
         if (is_file($caminhoAPILocal . 'apiLocal/classes/configuracoesTabelas.class.php')) {
             require_once $caminhoAPILocal . 'apiLocal/classes/configuracoesTabelas.class.php';
-            $configuracoesTabelaTemp = new configuracoesTabelas();
+
+
+            $configuracoesTabelaTemp = new \configuracoesTabelas();
 
             if (method_exists($configuracoesTabelaTemp, $tabela)) {
                 $configuracoesTabela = $configuracoesTabelaTemp->$tabela();
@@ -333,7 +334,7 @@ class ConClasseGeral
     {
         $dados_con = $this->pegaCaminhoApi() . 'apiLocal/classes/dadosConexao.class.php';
         require_once($dados_con);
-        $this->db = new dadosConexao;
+        $this->db = new \dadosConexao;
 
         $configuracoesTabela = [];
 
@@ -374,7 +375,7 @@ class ConClasseGeral
             $senha = $this->db->bases[$dataBase]['senha'];
 
             //echo $servidor .  ' -- ' . $usuario . ' -- ' . $senha . ' -- ' . $dataBase;
-            $this->Conexoes[$dataBase] = new mysqli($servidor, $usuario, $senha, $dataBase);
+            $this->Conexoes[$dataBase] = new \mysqli($servidor, $usuario, $senha, $dataBase);
 
             //$this->Conexoes[$dataBase]->set_charset('utf8');
             mysqli_set_charset($this->Conexoes[$dataBase], "utf8");
@@ -407,6 +408,7 @@ class ConClasseGeral
             ini_set('error_reporting', '~E_DEPRECATED');
             // echo 'sql = '.  $sql . "\n";
             $con->query('set sql_mode=""');
+            //echo $sql . $this->q;
             $retorno = $con->query($sql);
             if (!$retorno) {
                 echo $con->error . "\n";
@@ -1140,8 +1142,9 @@ class ConClasseGeral
         $retorno['filtrosExibir'] = '';
         //$retorno['sql'] = '';
 
-        require_once($_SESSION[session_id()]['caminhoApiLocal'] . 'api/BaseArcabouco/funcoes.class.php');
-        $txt = new manipulaStrings();
+        //require_once($_SESSION[session_id()]['caminhoApiLocal'] . 'api/BaseArcabouco/funcoes.class.php');
+        //$txt = new manipulaStrings();
+        $txt = new ManipulaStrings();
         //$filtros = json_decode($_GET['filtros'], true);
         foreach ($filtros as $key => $val) {
 
@@ -2299,7 +2302,7 @@ class ConClasseGeral
         $configuracoesTabela = [];
         if (is_file($caminhoAPILocal . '/apiLocal/classes/configuracoesTabelas.class.php')) {
             require_once $caminhoAPILocal . '/apiLocal/classes/configuracoesTabelas.class.php';
-            $configuracoesTabelaTemp = new configuracoesTabelas();
+            $configuracoesTabelaTemp = new \configuracoesTabelas();
 
             if (method_exists($configuracoesTabelaTemp, $tabela)) {
                 $configuracoesTabela = $configuracoesTabelaTemp->$tabela();

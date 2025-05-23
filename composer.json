@@ -3,7 +3,8 @@
   "description": "Classe de Gerenciamento de Dados em PHP",
   "type": "library",
   "require": {
-    "php": "^7.2 || ^8.0"
+    "php": "^7.2 || ^8.0",
+    "fpdf/fpdf": "^1.86"
   },
   "autoload": {
     "psr-4": {

@@ -1,5 +1,5 @@
 <?php
-
+//Teste
 namespace ClasseGeral;
 
 require_once __DIR__ . '/conClasseGeral.php';
@@ -66,8 +66,9 @@ class ClasseGeral extends ConClasseGeral
         $tela = $parametros['tela'];
         $selecionado = $parametros['selecionado'];
 
-        require_once $this->funcoes;
-        $sessao = new manipulaSessao();
+        //require_once $this->funcoes;
+        //$sessao = new manipulaSessao();
+        $sessao = new ManipulaSessao();
         $variavelSessao = 'consultas,' . $tela;
         $lista = $sessao->pegar($variavelSessao);
 
@@ -113,9 +114,10 @@ class ClasseGeral extends ConClasseGeral
         $tabelaConsulta = $p['tabelaConsulta'] ?? $tabela;
         $temCampoDisponivelNoFiltro = false;
 
-        $this->funcoes = $_SESSION[session_id()]['caminhoApiLocal'] . 'api/BaseArcabouco/funcoes.class.php';
-        require_once $this->funcoes;
-        $sessao = new manipulaSessao();
+        //$this->funcoes = $_SESSION[session_id()]['caminhoApiLocal'] . 'api/BaseArcabouco/funcoes.class.php';
+        //require_once $this->funcoes;
+        //$sessao = new manipulaSessao();
+        $sessao = new ManipulaSessao();
 
         $configuracoesTabela = $this->buscaConfiguracoesTabela($tabelaConsulta);
         $valoresConsiderarDisponivel = array_merge(['S'], $configuracoesTabela['valoresConsiderarDisponivel'] ?? []);
@@ -491,7 +493,7 @@ class ClasseGeral extends ConClasseGeral
         if (is_file($caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php')) {
 
             require_once $caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php';
-            $config = new configuracoesTabelas();
+            $config = new \configuracoesTabelas();
             $tabela = strtolower($this->nometabela($s['tabela']));
 
             if (method_exists($config, $tabela)) {
@@ -1086,7 +1088,7 @@ class ClasseGeral extends ConClasseGeral
 
         if (is_file($caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php')) {
             require_once $caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php';
-            $config = new configuracoesTabelas();
+            $config = new \configuracoesTabelas();
             $tabela = strtolower($tabela);
 
             if (method_exists($config, $tabela)) {
@@ -1194,19 +1196,22 @@ class ClasseGeral extends ConClasseGeral
             //$tabela = $p['tabela'];
             $chave = $p['chave'];
 
-            @session_start();
+//            @session_start();
             $caminho = $_SESSION[session_id()]['caminhoApiLocal'];
             $destinoBase = 'arquivos_anexos/' . $tabela . '/' . $chave . '/';
             $destino = $caminho . 'arquivos_anexos/' . $tabela . '/' . $chave . '/';
             $destinom = $caminho . 'arquivos_anexos/' . $tabela . '/' . $chave . '/mini/';
 
             require_once $caminho . "/api/BaseArcabouco/uploadsimples.class.php";
-            $up = new uploadSimples;
+            $up = new \uploadSimples;
 
-            $this->funcoes = $this->funcoes = $caminho . 'api/BaseArcabouco/funcoes.class.php';
-            require_once $this->funcoes;
-            $func = new manipulaStrings;
-            $dir = new gerenciaDiretorios;
+            //$this->funcoes = $this->funcoes = $caminho . 'api/BaseArcabouco/funcoes.class.php';
+            //require_once $this->funcoes;
+            //$func = new manipulaStrings;
+            $func = new \ClasseGeral\ManipulaStrings();
+
+            //$dir = new gerenciaDiretorios;
+            $dir = new \ClasseGeral\GerenciaDiretorios();
 
             if (!is_dir($destino)) {
                 $dir->criadiretorio($destino);
@@ -1485,7 +1490,7 @@ class ClasseGeral extends ConClasseGeral
         if (is_file($caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php')) {
 
             require_once $caminhoApiLocal . 'apiLocal/classes/configuracoesTabelas.class.php';
-            $config = new configuracoesTabelas();
+            $config = new \configuracoesTabelas();
             if (method_exists($config, $nomeTabela)) {
                 $configuracoesTabela = $config->$nomeTabela();
 
@@ -1554,12 +1559,12 @@ class ClasseGeral extends ConClasseGeral
             if (method_exists($classe, 'aoExcluirAnexos')) {
                 $classe->aoExcluirAnexos($anexo);
             } else {
-                echo 'nao tem';
+                return json_encode(['erro' => 'Erro ao excluir o anexo']);
             }
         }
 
         if ($origem == 'padrao') {
-            echo "sucesso";
+            return json_encode(['sucesso' => 'Anexo excluído com sucesso']);
         }
         //*/
     }
