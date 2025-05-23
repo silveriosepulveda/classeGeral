@@ -23,9 +23,9 @@
 /cache/
 
 # Testes
-/tests/output/
-/tests/_output/
-/tests/_support/_generated/
+#/tests/output/
+#/tests/_output/
+#/tests/_support/_generated/
 
 # Arquivos temporários
 *.tmp
