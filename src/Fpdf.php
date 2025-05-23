@@ -1,6 +1,5 @@
 <?php
-
-require_once __DIR__ . '/../../vendor/autoload.php'; // Ajuste o caminho se necessário
+namespace ClasseGeral;
 
 use Fpdf\Fpdf as BaseFpdf; // Supondo que você está usando a biblioteca fpdf/fpdf via Composer
 

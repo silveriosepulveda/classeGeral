@@ -1,9 +1,8 @@
 <?php
-//Teste
+
 namespace ClasseGeral;
 
 require_once __DIR__ . '/conClasseGeral.php';
-require_once __DIR__ . '/Funcoes.php';
 
 class ClasseGeral extends ConClasseGeral
 {
@@ -1202,8 +1201,9 @@ class ClasseGeral extends ConClasseGeral
             $destino = $caminho . 'arquivos_anexos/' . $tabela . '/' . $chave . '/';
             $destinom = $caminho . 'arquivos_anexos/' . $tabela . '/' . $chave . '/mini/';
 
-            require_once $caminho . "/api/BaseArcabouco/uploadsimples.class.php";
-            $up = new \uploadSimples;
+            //require_once $caminho . "/api/BaseArcabouco/uploadsimples.class.php";
+            //$up = new \uploadSimples;
+            $up = new \ClasseGeral\UploadSimples();
 
             //$this->funcoes = $this->funcoes = $caminho . 'api/BaseArcabouco/funcoes.class.php';
             //require_once $this->funcoes;
@@ -1226,7 +1226,7 @@ class ClasseGeral extends ConClasseGeral
 
                 $ext = $tipoArquivos == 'files' ? strtolower(pathinfo($a["name"], PATHINFO_EXTENSION)) : 'png';
 
-                $nome = $tipoArquivos == 'files' ? utf8_decode(pathinfo($func->limparacentos($a["name"], true), PATHINFO_FILENAME)) :
+                $nome = $tipoArquivos == 'files' ? mb_convert_encoding(pathinfo($func->limparacentos($a["name"], true), PATHINFO_FILENAME), 'utf8') :
                     $tabela . '_' . $chave . '_' . $this->proximachave('arquivos_anexos');
                 $p['extensao'] = $ext;
                 $p['nome'] = $nome;
@@ -1549,13 +1549,14 @@ class ClasseGeral extends ConClasseGeral
 
         $this->exclui('arquivos_anexos', 'chave_anexo', $anexo['chave_anexo']);
 
-        $nomeClasse = $this->nomeClase($tabela);
+        $nomeClasse = '\\' . $this->nomeClase($tabela);
         $arquivoClasse = $caminho . 'apiLocal/classes/' . $nomeClasse . '.class.php';
 
 //        //Nova funcao que vai verificar se tem na classe alguma funcao chamada aoAnexar
         if (file_exists($arquivoClasse)) {
             require_once $arquivoClasse;
             $classe = new $nomeClase();
+            
             if (method_exists($classe, 'aoExcluirAnexos')) {
                 $classe->aoExcluirAnexos($anexo);
             } else {

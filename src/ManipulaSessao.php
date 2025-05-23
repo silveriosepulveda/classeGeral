@@ -6,7 +6,7 @@ class ManipulaSessao
 {
     public function excluir($var)
     {
-        @session_start();
+       // @session_start();
         $id = session_id();
         $c = explode(',', $var);
         $tamanho = sizeof($c);
@@ -27,7 +27,7 @@ class ManipulaSessao
 
     public function pegar($var)
     {
-        @session_start();
+       // @session_start();
         $id = session_id();
         $c = explode(',', $var);
         $tamanho = sizeof($c);
@@ -48,7 +48,7 @@ class ManipulaSessao
 
     public function setar($var, $valor)
     {
-        @session_start();
+     //   @session_start();
         $id = session_id();
         $c = explode(',', $var);
         $tamanho = sizeof($c);
