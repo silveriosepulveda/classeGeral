@@ -2,8 +2,16 @@
 
 namespace ClasseGeral;
 
+/**
+ * Classe utilitária para manipulação de sessões PHP.
+ * Permite setar, pegar e excluir variáveis de sessão de forma hierárquica.
+ */
 class ManipulaSessao
 {
+    /**
+     * Exclui uma variável da sessão, podendo ser hierárquica (ex: 'usuario', 'usuario,nome').
+     * @param string $var Nome da variável ou caminho hierárquico separado por vírgula.
+     */
     public function excluir($var)
     {
        // @session_start();
@@ -25,6 +33,11 @@ class ManipulaSessao
         }
     }
 
+    /**
+     * Recupera o valor de uma variável da sessão, podendo ser hierárquica.
+     * @param string $var Nome da variável ou caminho hierárquico separado por vírgula.
+     * @return mixed Valor armazenado na sessão ou string vazia se não existir.
+     */
     public function pegar($var)
     {
        // @session_start();
@@ -46,6 +59,11 @@ class ManipulaSessao
         return $retorno;
     }
 
+    /**
+     * Seta o valor de uma variável na sessão, podendo ser hierárquica.
+     * @param string $var Nome da variável ou caminho hierárquico separado por vírgula.
+     * @param mixed $valor Valor a ser armazenado.
+     */
     public function setar($var, $valor)
     {
      //   @session_start();

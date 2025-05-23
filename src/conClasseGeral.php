@@ -2,40 +2,106 @@
 
 namespace ClasseGeral;
 
-//@header('Content-Type: application/json; charset=utf-8');
-
-//namespace BaseArcabouco\bancodedados\Conexao;
+/**
+ * Classe base para operações de conexão e manipulação de dados gerais.
+ * 
+ * Responsável por fornecer métodos utilitários para conexão com banco de dados,
+ * manipulação de sessões, validação de campos obrigatórios, entre outros.
+ */
 class ConClasseGeral
 {
-
+    /**
+     * Objeto de configuração do banco de dados.
+     * @var mixed
+     */
     public $db;
+
+    /**
+     * Mapeamento de sexo por extenso.
+     * @var array
+     */
     public $sexoporextenso = array('M' => 'Masculino', 'F' => 'Feminino');
+
+    /**
+     * Mapeamento de tipo de pessoa.
+     * @var array
+     */
     public $tipoPessoa = array('F' => 'Física', 'J' => 'Jurídica');
+
+    /**
+     * Extensões de arquivos de imagem suportadas.
+     * @var array
+     */
     public $extensoes_imagem = array('jpg', 'jpeg', 'gif', 'png');
+
+    /**
+     * Extensões de arquivos suportadas.
+     * @var array
+     */
     public $extensoes_arquivos = array('doc', 'docx', 'pdf', 'xls', 'xlsx', 'txt', 'rar');
+
+    /**
+     * Quebra de linha padrão.
+     * @var string
+     */
     public $q = "\n";
+
+    /**
+     * Array de conexões abertas.
+     * @var array
+     */
     public $Conexoes;
+
+    /**
+     * Conexão base privada.
+     * @var mixed
+     */
     private $ConexaoBase;
+
+    /**
+     * Nome da base de dados.
+     * @var string
+     */
     private $base;
+
+    /**
+     * Cache de campos das tabelas.
+     * @var array
+     */
     private $camposTabelas = [];
 
+    /**
+     * Retorna o usuário logado na sessão.
+     * @return mixed Usuário logado ou null.
+     */
     public function buscaUsuarioLogado()
     {     
         $sessao = new \ClasseGeral\ManipulaSessao();
         return $sessao->pegar('usuario');        
     }
 
+    /**
+     * Carrega funções utilitárias do sistema (placeholder).
+     */
     public function carregarFuncoes()
     {
-        //$caminho = $this->pegaCaminhoFuncoes();
-       // require_once($caminho);
+        // $caminho = $this->pegaCaminhoFuncoes();
+        // require_once($caminho);
     }
 
+    /**
+     * Retorna o caminho das funções utilitárias (placeholder).
+     * @return string|null
+     */
     public function pegaCaminhoFuncoes()
     {
-       // return $this->pegaCaminhoApi() . 'api/BaseArcabouco/funcoes.class.php';
+        // return $this->pegaCaminhoApi() . 'api/BaseArcabouco/funcoes.class.php';
     }
 
+    /**
+     * Retorna o caminho base da API local.
+     * @return string Caminho absoluto da API local.
+     */
     public function pegaCaminhoApi()
     {
         if (isset($_SESSION[session_id()]['caminhoApiLocal']))
@@ -44,6 +110,14 @@ class ConClasseGeral
             return $_SERVER['DOCUMENT_ROOT'] . '/';
     }
 
+    /**
+     * Valida campos obrigatórios de acordo com a configuração informada.
+     *
+     * @param array $configuracao Configuração dos campos obrigatórios.
+     * @param array $dados Dados a serem validados.
+     * @param array $retorno (Opcional) Array de retorno para campos inválidos.
+     * @return array Lista de campos obrigatórios não preenchidos.
+     */
     public function validarCamposObrigatorios($configuracao, $dados, $retorno = [])
     {
         if (!is_array($configuracao) || !is_array($configuracao['camposObrigatorios']))
@@ -178,11 +252,24 @@ class ConClasseGeral
         return $retorno;        
     }
 
+    /**
+     * Valida se um determinado valor é considerado um campo preenchido.
+     *
+     * @param mixed $valor Valor a ser validado.
+     * @return bool Retorna true se o campo é válido, caso contrário, false.
+     */
     public function validarCampo($valor)
     {
         return $valor != '' && $valor != 'undefined' && $valor != 'null';
     }
 
+    /**
+     * Verifica duplicidade de cadastro com base nas configurações informadas.
+     *
+     * @param array $configuracoes Configurações para verificação de duplicidade.
+     * @param array $dados Dados a serem verificados.
+     * @return bool Retorna true se houver duplicidade, caso contrário, false.
+     */
     public function buscarDuplicidadeCadastro($configuracoes, $dados)
     {
         $camposSeparados = isset($configuracoes['camposNaoDuplicar']) ? $configuracoes['camposNaoDuplicar'] : [];
@@ -245,6 +332,14 @@ class ConClasseGeral
         //*/
     }
 
+    /**
+     * Retorna os campos de uma tabela a partir do nome da tabela.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param string $dataBase (Opcional) Nome da base de dados.
+     * @param string $tiporetorno (Opcional) Tipo de retorno desejado.
+     * @return array Lista de campos da tabela.
+     */
     public function campostabela($tabela, $dataBase = '', $tiporetorno = 'padrao')
     {
         $tabela = is_string($tabela) ? strtolower($tabela) : '';
@@ -297,6 +392,12 @@ class ConClasseGeral
         //*/
     }
 
+    /**
+     * Busca as configurações de uma tabela a partir do nome da tabela.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @return array Configurações da tabela.
+     */
     public function buscaConfiguracoesTabela($tabela)
     {
         $caminhoAPILocal = $this->pegaCaminhoApi();
@@ -318,6 +419,13 @@ class ConClasseGeral
         return $configuracoesTabela;
     }
 
+    /**
+     * Retorna o nome da base de dados a ser utilizada para uma tabela específica.
+     *
+     * @param string $tabela Nome da tabela.
+     * @param string $dataBase (Opcional) Nome da base de dados.
+     * @return string Nome da base de dados.
+     */
     public function pegaDataBase($tabela = '', $dataBase = '')
     {
         $dados_con = $this->pegaCaminhoApi() . 'apiLocal/classes/dadosConexao.class.php';
@@ -341,6 +449,11 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Estabelece uma conexão com o banco de dados.
+     *
+     * @param string $dataBase (Opcional) Nome da base de dados a ser utilizada na conexão.
+     */
     public function conecta($dataBase = '')
     {
 
@@ -367,11 +480,23 @@ class ConClasseGeral
         } 
     }
 
+    /**
+     * Desconecta uma conexão com o banco de dados.
+     *
+     * @param string $dataBase Nome da base de dados da conexão a ser encerrada.
+     */
     public function desconecta($dataBase)
     {
         
     }
 
+    /**
+     * Executa uma query SQL no banco de dados.
+     *
+     * @param string $sql Query SQL a ser executada.
+     * @param string $dataBase (Opcional) Nome da base de dados onde a query será executada.
+     * @return mixed Resultado da execução da query.
+     */
     public function executasql($sql, $dataBase = '')
     {
         $TipoBase = isset($this->db->TipoBase) ? $this->db->TipoBase : 'MySQL';
@@ -395,6 +520,12 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Retorna o próximo registro de um resultado de query.
+     * 
+     * @param mixed $resultado Resultado da query.
+     * @return array|null Retorna os dados do próximo registro ou null se não houver mais registros.
+     */
     public function retornosql($resultado)
     {        
         $TipoBase = isset($this->db->TipoBase) ? $this->db->TipoBase : 'MySQL';
@@ -407,6 +538,13 @@ class ConClasseGeral
         }
     }
 
+    /**
+     * Retorna o campo chave de uma tabela a partir do nome da tabela.
+     *
+     * @param string $tabela Nome da tabela.
+     * @param array $dados (Opcional) Dados adicionais para a busca da chave.
+     * @return string Campo chave da tabela.
+     */
     public function campochavetabela($tabela, $dados = array())
     {
         $dataBase = $this->pegaDataBase($tabela);
@@ -434,6 +572,12 @@ class ConClasseGeral
         }
     }
 
+    /**
+     * Retorna o nome da tabela a partir do nome da tabela (pode conter prefixos como 'view').
+     *
+     * @param string $tabela Nome da tabela.
+     * @return string Nome da tabela sem prefixos.
+     */
     public function nometabela($tabela)
     {
         $tabela = strtolower((string)$tabela);
@@ -443,6 +587,17 @@ class ConClasseGeral
         return $tabela;
     }
 
+    /**
+     * Executa uma query SQL diretamente e retorna os resultados processados.
+     *
+     * @param string $sql Query SQL a ser executada.
+     * @param string $acao (Opcional) Ação a ser realizada com os dados retornados.
+     * @param string $tabela (Opcional) Nome da tabela relacionada à query.
+     * @param string $dataBase (Opcional) Nome da base de dados onde a query será executada.
+     * @param bool $mostrarsql (Opcional) Se deve ou não mostrar a query SQL executada.
+     * @param bool $formatar (Opcional) Se deve ou não formatar os valores retornados.
+     * @return array Resultado da query processado.
+     */
     public function retornosqldireto($sql, $acao = '', $tabela = '', $dataBase = '', $mostrarsql = false, $formatar = true)
     {
         $retorno = [];
@@ -743,11 +898,25 @@ class ConClasseGeral
         return $sql;        
     }
 
+    /**
+     * Retorna a chave de usuário logado na sessão.
+     *
+     * @return mixed Chave de usuário ou null.
+     */
     public function pegaChaveUsuario()
     {
         return isset($_SESSION[session_id()]['usuario']['chave_usuario']) ? $_SESSION[session_id()]['usuario']['chave_usuario'] : null;
     }
 
+    /**
+     * Retorna um valor formatado para uso em uma query SQL, de acordo com seu tipo.
+     *
+     * @param string $tipo Tipo do dado.
+     * @param mixed $valor Valor a ser formatado.
+     * @param string $origem (Opcional) Origem do dado (consulta, inclusao, alteracao).
+     * @param string $campo (Opcional) Nome do campo relacionado ao valor.
+     * @return mixed Valor formatado.
+     */
     public function retornavalorparasql($tipo, $valor, $origem = 'consulta', $campo = '')
     {        
         if ($valor === 'undefined')
@@ -820,6 +989,12 @@ class ConClasseGeral
         return $valor_saida;
     }
 
+    /**
+     * Configura o valor numérico para o formato adequado ao banco de dados.
+     *
+     * @param mixed $valor Valor a ser configurado.
+     * @return float Valor configurado.
+     */
     public function configvalor($valor)
     {
         if ($valor == '' || $valor == 'undefined')
@@ -830,11 +1005,22 @@ class ConClasseGeral
         return ($temp);
     }
 
+    /**
+     * Retorna a data e hora atual formatada.
+     *
+     * @return string Data e hora atual.
+     */
     public function pegaDataHora()
     {
         return date('Y-m-d H:i:s');
     }
 
+    /**
+     * Retorna o número de linhas afetadas pela última operação no banco de dados.
+     *
+     * @param string $dataBase (Opcional) Nome da base de dados.
+     * @return int Número de linhas afetadas.
+     */
     public function linhasafetadas($dataBase = '')
     {
         $TipoBase = isset($this->db->TipoBase) ? $this->db->TipoBase : 'MySQL';
@@ -851,6 +1037,14 @@ class ConClasseGeral
         }
     }
 
+    /**
+     * Formata um valor para exibição de acordo com seu tipo.
+     *
+     * @param mixed $valor Valor a ser formatado.
+     * @param string $tipo Tipo do dado.
+     * @param bool $htmlentitie (Opcional) Se deve ou não aplicar htmlentities no valor.
+     * @return mixed Valor formatado para exibição.
+     */
     public function formatavalorexibir($valor, $tipo, $htmlentitie = true)
     {
         $retorno = '';
@@ -909,6 +1103,13 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Busca a estrutura de uma tabela para geração de formulários, relatórios, etc.
+     *
+     * @param array $parametros Parâmetros para a busca da estrutura.
+     * @param string $tipoRetorno (Opcional) Tipo de retorno desejado (json ou array).
+     * @return mixed Estrutura da tabela em formato JSON ou array.
+     */
     public function buscarEstrutura($parametros, $tipoRetorno = 'json')
     {
         //Para essa funcao funcionar e necessario que a estrutura esteja no arquivo da classe
@@ -971,6 +1172,12 @@ class ConClasseGeral
         return $tipoRetorno == 'array' ? $retorno : json_encode($retorno);    
     }
 
+    /**
+     * Converte um nome de tabela para o formato de classe em PHP.
+     *
+     * @param string $tabela Nome da tabela a ser convertida.
+     * @return string Nome da classe gerada a partir da tabela.
+     */
     public function nomeClase($tabela)
     {
         $temp = explode('_', $tabela);
@@ -1013,6 +1220,13 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Monta uma condição SQL do tipo BETWEEN para um campo específico.
+     *
+     * @param string $campo Campo a ser utilizado na condição.
+     * @param string $valor Valores a serem considerados no formato 'valor1__valor2'.
+     * @return string Condição SQL montada.
+     */
     public function montaSQLBetween($campo, $valor)
     {
         $tempB = explode('__', $valor);
@@ -1031,6 +1245,13 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Formata valores para exibição em um relatório, considerando as configurações da tabela.
+     *
+     * @param string $tabela Nome da tabela cujos valores serão formatados.
+     * @param array $valores Valores a serem formatados.
+     * @return array Valores formatados.
+     */
     public function formatarValoresExibir($tabela, $valores)
     {
         $campos = array_change_key_case($this->campostabela($tabela), CASE_LOWER);
@@ -1043,6 +1264,13 @@ class ConClasseGeral
         return $valores;
     }
 
+    /**
+     * Busca um campo distinto em uma tabela.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param string $campo Nome do campo a ser buscado.
+     * @return array Valores distintos encontrados.
+     */
     public function buscarCampoDistintoTabela($tabela, $campo)
     {
         $retorno = [];
@@ -1054,6 +1282,13 @@ class ConClasseGeral
         }
     }
 
+    /**
+     * Monta os filtros para um relatório a partir dos parâmetros informados.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param array $filtros Filtros a serem aplicados na consulta.
+     * @return array Filtros formatados para exibição.
+     */
     public function montaFiltrosRelatorios($tabela, $filtros)
     {
         $campos_tabela = $this->campostabela($tabela);
@@ -1090,6 +1325,14 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Retorna a quantidade de itens selecionados em uma tabela para um determinado campo e valor.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param string $campo Nome do campo a ser filtrado.
+     * @param mixed $valor Valor a ser filtrado.
+     * @return int Quantidade de itens selecionados.
+     */
     public function qtditensselecionados($tabela, $campo, $valor)
     {
         $this->conecta();
@@ -1101,6 +1344,12 @@ class ConClasseGeral
         return $lin["QTD"];
     }
 
+    /**
+     * Monta uma cláusula WHERE para uma consulta SQL a partir dos parâmetros informados.
+     *
+     * @param array $parametros Parâmetros para a montagem da cláusula WHERE.
+     * @return string Cláusula WHERE montada.
+     */
     public function montaWhereSQL($parametros)
     {
         $p = $parametros;
@@ -1193,6 +1442,11 @@ class ConClasseGeral
         return $sql;
     }
 
+    /**
+     * Retorna o nome das tabelas da base de dados.
+     *
+     * @return array Lista de tabelas da base de dados.
+     */
     public function tabelasbase()
     {
         $array = array();
@@ -1208,6 +1462,12 @@ class ConClasseGeral
         echo $array;
     }
 
+    /**
+     * Retorna as tabelas que possuem um determinado campo.
+     *
+     * @param string $campo Nome do campo a ser pesquisado.
+     * @return array Tabelas que possuem o campo.
+     */
     public function tabelasPorCampo($campo)
     {
         $sql = "SELECT table_name as tabela FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'central_resultados_site'
@@ -1215,6 +1475,14 @@ class ConClasseGeral
         return $this->retornosqldireto($sql);
     }
 
+    /**
+     * Retorna o valor a ser exibido em uma consulta, formatando-o de acordo com o tipo do campo.
+     *
+     * @param string $tabela Nome da tabela do campo.
+     * @param string $campo Nome do campo.
+     * @param mixed $valor Valor a ser exibido.
+     * @return mixed Valor formatado para exibição.
+     */
     public function valorexibirconsulta($tabela, $campo, $valor)
     {
         $retorno = '';
@@ -1226,6 +1494,13 @@ class ConClasseGeral
         return $this->formatavalorexibir($valor, $tipo);
     }
 
+    /**
+     * Retorna o tipo de dado de um campo em uma tabela.
+     *
+     * @param string $tabela Nome da tabela.
+     * @param string $campo Nome do campo.
+     * @return string Tipo do dado do campo.
+     */
     public function tipodadocampo($tabela, $campo)
     {
         $retorno = '';
@@ -1239,6 +1514,12 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Verifica se um objeto existe com base nos parâmetros informados.
+     *
+     * @param array $parametros Parâmetros para a verificação da existência do objeto.
+     * @return string JSON com informações sobre a existência do objeto.
+     */
     public function objetoexistesimples($parametros)
     {
         $tabela = strtolower($parametros['tabela']);
@@ -1278,6 +1559,17 @@ class ConClasseGeral
         return json_encode($retorno);
     }
 
+    /**
+     * Verifica se um objeto existe em uma tabela com base nos parâmetros informados.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param string $campo Nome do campo a ser filtrado.
+     * @param mixed $valor Valor a ser filtrado.
+     * @param mixed $chave (Opcional) Chave primária do registro.
+     * @param string $campo_tab_pri (Opcional) Campo da tabela primária.
+     * @param mixed $valor_ctp (Opcional) Valor da chave primária.
+     * @return bool Retorna true se o objeto existe, caso contrário, false.
+     */
     public function objetoexiste($tabela, $campo, $valor, $chave_primaria = '', $campo_tab_pri = '', $valor_ctp = '')
     {
         $tabela = strtolower($tabela);
@@ -1303,6 +1595,17 @@ class ConClasseGeral
         }
     }
 
+    /**
+     * Verifica se um objeto composto existe em uma tabela com base nos parâmetros informados.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param array $campos Campos a serem filtrados.
+     * @param array $valores Valores a serem considerados na filtragem.
+     * @param string $campo_chave (Opcional) Campo chave da tabela.
+     * @param mixed $chave_primaria (Opcional) Chave primária do registro.
+     * @param string $tipo (Opcional) Tipo de verificação (composto ou simples).
+     * @return mixed Retorna o valor da chave composta se existir, caso contrário, 0.
+     */
     public function objetoexistecomposto($tabela, $campos, $valores, $campo_chave = '', $chave_primaria = '', $tipo = 'composto')
     {
         $tabela = strtolower($tabela);
@@ -1328,6 +1631,16 @@ class ConClasseGeral
         }
     }
 
+    /**
+     * Verifica se um registro está em uso em tabelas relacionadas.
+     *
+     * @param string $tabela_e Nome da tabela a ser consultada.
+     * @param string $campo_chave_e Nome do campo chave da tabela.
+     * @param mixed $chave_e Valor da chave a ser verificado.
+     * @param string $tabela_ignorar (Opcional) Tabela a ser ignorada na verificação.
+     * @param bool $exibirsql (Opcional) Se deve ou não exibir a query SQL gerada.
+     * @return int Retorna 1 se o registro estiver em uso, caso contrário, 0.
+     */
     public function objetoemuso($tabela_e, $campo_chave_e, $chave_e, $tabela_ignorar = 'nenhuma', $exibirsql = false)
     {
         $retorno = 0;
@@ -1366,6 +1679,13 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Retorna os dados de um registro como um array associativo.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param mixed $chave Valor da chave do registro.
+     * @return array Dados do registro.
+     */
     public function arraydadostabela($tabela, $chave)
     {
         $tabela = strtolower($tabela);
@@ -1397,6 +1717,15 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Busca um valor em uma tabela com base na chave primária.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param string $campo Nome do campo a ser buscado.
+     * @param string $campo_chave Nome do campo chave da tabela.
+     * @param mixed $chave Valor da chave a ser buscada.
+     * @return mixed Valor encontrado ou null.
+     */
     public function buscaumcampotabela($tabela, $campo, $campo_chave, $chave)
     {
         $tabela = strtolower($tabela);
@@ -1473,6 +1802,15 @@ class ConClasseGeral
         return $lin;
     }
 
+    /**
+     * Busca dados para alteração em um registro.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param string $campo_chave (Opcional) Campo chave da tabela.
+     * @param mixed $chave (Opcional) Valor da chave do registro.
+     * @param bool $mostrarsql (Opcional) Se deve ou não mostrar a query SQL executada.
+     * @return array Dados do registro para alteração.
+     */
     public function buscadadosalterar($tabela, $campo_chave = '', $chave = 0, $mostrarsql = false)
     {
         $tabela = strtolower($tabela);
@@ -1522,6 +1860,12 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Busca dados para alteração em um registro no formato JSON.
+     *
+     * @param mixed $parametros Parâmetros para a busca dos dados.
+     * @return void
+     */
     public function buscadadosalterarjson($parametros)
     {
         $p = array();
@@ -1580,6 +1924,14 @@ class ConClasseGeral
         echo $json;
     }
 
+    /**
+     * Busca dados de um registro para impressão.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param string $campo_chave Nome do campo chave da tabela.
+     * @param mixed $chave Valor da chave do registro.
+     * @return array Dados do registro formatados para impressão.
+     */
     public function buscadadosimprimir($tabela, $campo_chave, $chave)
     {
         $tabela = strtolower($tabela);
@@ -1615,6 +1967,16 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Atualiza um registro no banco de dados.
+     *
+     * @param string $tabela Nome da tabela onde o registro será atualizado.
+     * @param array $dados Dados a serem atualizados.
+     * @param mixed $chave (Opcional) Chave do registro a ser atualizado.
+     * @param bool $mostrarsql (Opcional) Se deve ou não mostrar a query SQL executada.
+     * @param bool $inserirLog (Opcional) Se deve ou não inserir um log da operação.
+     * @return mixed Retorna a chave do registro atualizado ou 0 em caso de falha.
+     */
     public function altera($tabela, $dados, $chave = 0, $mostrarsql = false, $inserirLog = true)
     {        
         //Pegando os campos da tabela
@@ -1700,6 +2062,13 @@ class ConClasseGeral
         }
     }
 
+    /**
+     * Verifica se um campo é chave estrangeira em outra tabela.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @param string $campo Nome do campo a ser verificado.
+     * @return int Retorna 1 se o campo é chave estrangeira, caso contrário, 0.
+     */
     public function echaveestrangeira($tabela, $campo)
     {
         $sql = "select count(*) as qtd from view_relacionamentos where tabela_secundaria = '$tabela' AND campo_secundario = '$campo'";
@@ -1709,6 +2078,16 @@ class ConClasseGeral
         return (int)$retorno;
     }
 
+    /**
+     * Exclui um registro de uma tabela e, opcionalmente, de tabelas relacionadas.
+     *
+     * @param string $tabela Nome da tabela de onde o registro será excluído.
+     * @param string $campo_chave Nome do campo chave da tabela.
+     * @param mixed $chave Valor da chave do registro a ser excluído.
+     * @param string $tabela_relacionada (Opcional) Tabela relacionada da qual também será feita a exclusão.
+     * @param bool $exibirsql (Opcional) Se deve ou não exibir a query SQL gerada.
+     * @return mixed Retorna 0 em caso de sucesso ou o valor da chave em caso de falha.
+     */
     public function exclui($tabela, $campo_chave, $chave, $tabela_relacionada = 'nenhuma', $exibirsql = false)
     {
         ini_set("display_errors", 0);
@@ -1765,52 +2144,16 @@ class ConClasseGeral
         ini_set("display_errors", 1);
     }
 
-    public function incluirLog($tabela, $chave_tabela, $acao, $valorAnterior = [], $valorNovo = '')
-    {
-        $incluirLog = in_array($acao, ['Inclusão', 'Exclusão', 'Exclusão A']);
-        $chave = 0;
-        $chaveUsuario = $this->pegaChaveUsuario();
-        $chaveUsuario = $chaveUsuario > 0 ? $chaveUsuario : 'null';
-
-        if ($acao == 'Alteração') {
-            foreach ($valorAnterior as $campo => $valor) {
-                if ($valor != $valorNovo[$campo]) {                    
-                    $incluirLog = true;
-                }
-            }
-        }
-
-        if ($incluirLog) {
-            $valorNovoInserirLog = [];
-            $valorAnteriorInserirLog = [];
-            foreach (isset($valorNovo) && is_array($valorNovo) ? $valorNovo : [] as $campo => $valor) {
-                if (!isset($valorAnterior[$campo]) || $valor != $valorAnterior[$campo]) {
-                    $valorNovoInserirLog[$campo] = $valor;
-                    $valorAnteriorInserirLog[$campo] = isset($valorAnterior[$campo]) ? $valorAnterior[$campo] : null;
-                }
-            }
-
-            $dados = [
-                'tabela' => $tabela,
-                'chave_tabela' => $chave_tabela,
-                'acao' => $acao,
-                'chave_usuario' => $chaveUsuario,
-                'chave_acesso' => $this->pegaChaveAcesso(),
-                'valor_anterior' => json_encode($valorAnteriorInserirLog),  //json_encode($valorAnterior),
-                'valor_novo' => json_encode($valorNovoInserirLog), // $valorNovo, //json_encode($valorNovo),
-                'data_log' => date('Y-m-d H:i:s')
-            ];
-
-            $chave = $this->inclui('eventos_sistema', $dados, 0, false);
-        }        
-        return $chave;
-    }
-
-    public function pegaChaveAcesso()
-    {        
-        return isset($_SESSION[session_id()]['usuario']['chave_acesso']) ? $_SESSION[session_id()]['usuario']['chave_acesso'] : null;
-    }
-
+    /**
+     * Insere um registro em uma tabela e, opcionalmente, em tabelas relacionadas.
+     *
+     * @param string $tabela Nome da tabela onde o registro será inserido.
+     * @param array $dados Dados a serem inseridos.
+     * @param mixed $chave_primaria (Opcional) Chave primária a ser atribuída ao registro.
+     * @param bool $mostrarsql (Opcional) Se deve ou não mostrar a query SQL executada.
+     * @param bool $inserirLog (Opcional) Se deve ou não inserir um log da operação.
+     * @return mixed Retorna a chave do registro inserido ou 0 em caso de falha.
+     */
     public function inclui($tabela, $dados, $chave_primaria = 0, $mostrarsql = false, $inserirLog = true, $formatar = true)
     {
         $tabelasIgnorarChavUsuario = ['acessos', 'usuarios_perfil', 'usuarios_empresas', 'usuarios_empresas_grupos', 'usuarios', 'eventos_sistema'];
@@ -1952,6 +2295,13 @@ class ConClasseGeral
 
     }
 
+    /**
+     * Retorna o próximo valor disponível para uma chave, considerando a tabela e a sequência.
+     *
+     * @param string $tabela Nome da tabela a ser considerada.
+     * @param bool $atualizarSequencia (Opcional) Se deve ou não atualizar a sequência.
+     * @return int Próximo valor disponível para a chave.
+     */
     public function proximachave($tabela, $atualizarSequencia = false)
     {
         $proxima_chave = 0;
@@ -1989,6 +2339,12 @@ class ConClasseGeral
         //*/
     }
 
+    /**
+     * Retorna o maior valor da chave de uma tabela.
+     *
+     * @param string $tabela Nome da tabela a ser consultada.
+     * @return int Maior valor da chave da tabela.
+     */
     private function maiorchavetabela($tabela)
     {
         $campo_chave = $this->campochavetabela($tabela);
@@ -1997,6 +2353,11 @@ class ConClasseGeral
         return isset($retorno[0]['ultima_chave']) ? $retorno[0]['ultima_chave'] : 0;
     }
 
+    /**
+     * Retorna o caminho da pasta usada na sessão atual.
+     *
+     * @return string Caminho da pasta usada.
+     */
     static function caminhopastausada()
     {
         @session_start();
@@ -2005,6 +2366,11 @@ class ConClasseGeral
             $_SESSION[session_id()]['caminhopastausada'] : '';
     }
 
+    /**
+     * Ordena o resultado de uma consulta com base em um campo específico.
+     *
+     * @param string $campoordenar Nome do campo a ser utilizado na ordenação.
+     */
     public function ordenaresultadoconsulta($campoordenar)
     {
         require_once '../funcoes.class.php';
@@ -2029,16 +2395,10 @@ class ConClasseGeral
     }
 
     /**
-     * Funcao que popula select com um ou mais campos
-     * @param array $parametros que sao
-     *                                  tabela
-     *                                  campo_chave
-     *                                  campo_valor que pode ser um ou varios campos separados por ','
-     *                                  campo_chave_tabela_primaria -- utilizado quando se filtrara por algum campo
-     *                                  valor_chave_tabela_primaria
-     *                                  ordem --- campo para ordenar a consulta
-     * @return json retorna variavel json com os valores buscados na tabela
+     * Popula um select com valores de uma tabela.
      *
+     * @param array $parametros Parâmetros para a consulta e formatação dos dados do select.
+     * @return json Retorna os valores em formato JSON.
      */
     public function jsonpopulaselect($parametros)
     {
@@ -2093,6 +2453,12 @@ class ConClasseGeral
         echo $json;
     }
 
+    /**
+     * Completa um campo com sugestões baseadas em um texto informado.
+     *
+     * @param array $p Parâmetros para a consulta de sugestões.
+     * @return void
+     */
     public function completacampo($p)
     {
         $mostrarSQL = false;
@@ -2241,6 +2607,12 @@ class ConClasseGeral
         //*/
     }
 
+    /**
+     * Completa um campo com sugestões baseadas em um texto informado.
+     *
+     * @param array $p Parâmetros para a consulta de sugestões.
+     * @return void
+     */
     public function completacampopornomedecampo($campo)
     {
         $campo = strtolower($campo);
@@ -2284,6 +2656,12 @@ class ConClasseGeral
         echo $json;
     }
 
+    /**
+     * Retorna as tabelas que possuem um determinado campo.
+     *
+     * @param string $campo Nome do campo a ser pesquisado.
+     * @return array Tabelas que possuem o campo.
+     */
     public function listatabelaspornomedecampo($campo)
     {
         $campo = strtolower($campo);
@@ -2308,6 +2686,13 @@ class ConClasseGeral
         return $tabelas;
     }
 
+    /**
+     * Converte um texto separado por um elemento em um array.
+     *
+     * @param string $separador Elemento que separa os valores no texto.
+     * @param string $texto Texto a ser convertido.
+     * @return array Valores convertidos em um array.
+     */
     public function textoparaarray($separador, $texto)
     {
         $retorno = array();
@@ -2329,6 +2714,13 @@ class ConClasseGeral
      * @return array $retorno é o texto convertido em um array
      */
 
+    /**
+     * Realiza a soma de dois valores em formato de texto.
+     *
+     * @param string $valor1 Primeiro valor a ser somado.
+     * @param string $valor2 Segundo valor a ser somado.
+     * @return string Resultado da soma.
+     */
     public function somarTexto($valor1, $valor2)
     {
         $v1 = $this->retornavalorparasql('float', $valor1);
@@ -2336,6 +2728,13 @@ class ConClasseGeral
         return $this->formatavalorexibir($v1 + $v2, 'float');
     }
 
+    /**
+     * Realiza a subtração entre dois valores em formato de texto.
+     *
+     * @param string $valor1 Valor de onde será subtraído.
+     * @param string $valor2 Valor a ser subtraído.
+     * @return string Resultado da subtração.
+     */
     public function subtrairTexto($valor1, $valor2)
     {
         $v1 = $this->retornavalorparasql('float', $valor1);
@@ -2343,6 +2742,13 @@ class ConClasseGeral
         return $this->formatavalorexibir($v1 - $v2, 'float');
     }
 
+    /**
+     * Realiza a multiplicação de um valor por um fator em formato de texto.
+     *
+     * @param string $valor Valor a ser multiplicado.
+     * @param string $multiplicador Fator multiplicador.
+     * @return string Resultado da multiplicação.
+     */
     public function multiplicarTexto($valor, $multiplicador)
     {
         $v1 = $this->retornavalorparasql('float', $valor);
@@ -2350,6 +2756,13 @@ class ConClasseGeral
         return $this->formatavalorexibir($v1 * $mult, 'float');
     }
 
+    /**
+     * Realiza a divisão de um valor por outro em formato de texto.
+     *
+     * @param string $valor Valor a ser dividido.
+     * @param string $divisor Divisor.
+     * @return string Resultado da divisão.
+     */
     public function dividirTexto($valor, $divisor)
     {
         $v1 = $this->retornavalorparasql('float', $valor);
@@ -2357,6 +2770,14 @@ class ConClasseGeral
         return $this->formatavalorexibir($valor / $divisor, 'float');
     }
 
+    /**
+     * Agrupa um array de dados com base em um campo de agrupamento.
+     *
+     * @param array $array Array a ser agrupado.
+     * @param string $campoAgrupamento Campo a ser utilizado para o agrupamento.
+     * @param bool $compararQuantidade (Opcional) Se deve ou não comparar a quantidade de itens agrupados.
+     * @return array Array agrupado.
+     */
     public function agruparArray($array, $campoAgrupamento, $compararQuantidade = true)
     {
         $retornoTemp = array();
@@ -2381,6 +2802,12 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Aplica medidas de segurança contra SQL Injection em um texto.
+     *
+     * @param string $texto Texto a ser protegido.
+     * @return string Texto protegido.
+     */
     public function antiInjection($texto)
     {
         $retorno = preg_replace("/( from | alter table | select | insert | delete | update | where | drop table | show tables |\*|--|\\\\)/i", "", $texto);
@@ -2391,6 +2818,11 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Retorna a data e hora atual formatada.
+     *
+     * @return array Array contendo a data e a hora atual.
+     */
     public function dataHora()
     {
         return [
@@ -2399,6 +2831,15 @@ class ConClasseGeral
         ];
     }
 
+    /**
+     * Adiciona um valor em um array associativo após uma chave específica.
+     *
+     * @param array $array Array original.
+     * @param string $chaveInserirApos Chave após a qual o novo valor será inserido.
+     * @param string $nomeNovaKey Nome da nova chave a ser inserida.
+     * @param mixed $novoValor Valor a ser inserido.
+     * @return array Novo array com o valor adicionado.
+     */
     public function incluirEmArray($array, $chaveInserirApos, $nomeNovaKey, $novoValor)
     {
         $novo = [];
@@ -2411,6 +2852,12 @@ class ConClasseGeral
         return $novo;
     }
 
+    /**
+     * Cria uma instância de uma classe a partir do nome da classe.
+     *
+     * @param string $classe Nome da classe a ser instanciada.
+     * @return mixed Instância da classe ou false em caso de falha.
+     */
     public function criaClasseTabela($classe)
     {
         $caminhoApiLocal = $this->pegaCaminhoApi();
@@ -2423,6 +2870,13 @@ class ConClasseGeral
         }
     }
 
+    /**
+     * Verifica se uma função existe em uma classe e, se necessário, inclui o arquivo da classe.
+     *
+     * @param mixed $classe Classe ou nome da classe a ser verificada.
+     * @param string $funcao Nome da função a ser verificada.
+     * @return bool Retorna true se a função existe, caso contrário, false.
+     */
     public function criaFuncaoClasse($classe, $funcao)
     {
         if (gettype($classe) == 'string' && !class_exists($classe)) {
@@ -2440,6 +2894,11 @@ class ConClasseGeral
         }
     }
 
+    /**
+     * Retorna a URL base do sistema.
+     *
+     * @return string URL base do sistema.
+     */
     public function pegaUrlBase()
     {
         $var = $_SERVER;
@@ -2450,6 +2909,13 @@ class ConClasseGeral
         }
     }
 
+    /**
+     * Gera uma chave aleatória em formato de string.
+     *
+     * @param int $tamanho (Opcional) Tamanho da chave a ser gerada.
+     * @param bool $criptografar (Opcional) Se deve ou não criptografar a chave gerada.
+     * @return string Chave gerada.
+     */
     function gerarKeyString($tamanho = 10, $criptografar = true)
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -2464,6 +2930,12 @@ class ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Adiciona um AND a uma cláusula SQL, se necessário.
+     *
+     * @param string $sql Cláusula SQL original.
+     * @return string Cláusula SQL com o AND adicionado, se necessário.
+     */
     private function adicionaAND($sql)
     {
         $sqlLocal = trim($sql);
@@ -2474,5 +2946,51 @@ class ConClasseGeral
         $copiaSQLFinal = substr($sqlLocal, $inicioCopia, 3);
         $substituir = $copiaSQLFinal == 'AND' || trim(substr($sqlLocal, $tamanho - 5, 5)) == 'AND (' || trim(substr($sqlLocal, $tamanho - 2, 2) == 'OR');
         return $substituir ? '' : ' AND ';
+    }
+
+    public function incluirLog($tabela, $chave_tabela, $acao, $valorAnterior = [], $valorNovo = '')
+    {
+        $incluirLog = in_array($acao, ['Inclusão', 'Exclusão', 'Exclusão A']);
+        $chave = 0;
+        $chaveUsuario = $this->pegaChaveUsuario();
+        $chaveUsuario = $chaveUsuario > 0 ? $chaveUsuario : 'null';
+
+        if ($acao == 'Alteração') {
+            foreach ($valorAnterior as $campo => $valor) {
+                if ($valor != $valorNovo[$campo]) {                    
+                    $incluirLog = true;
+                }
+            }
+        }
+
+        if ($incluirLog) {
+            $valorNovoInserirLog = [];
+            $valorAnteriorInserirLog = [];
+            foreach (isset($valorNovo) && is_array($valorNovo) ? $valorNovo : [] as $campo => $valor) {
+                if (!isset($valorAnterior[$campo]) || $valor != $valorAnterior[$campo]) {
+                    $valorNovoInserirLog[$campo] = $valor;
+                    $valorAnteriorInserirLog[$campo] = isset($valorAnterior[$campo]) ? $valorAnterior[$campo] : null;
+                }
+            }
+
+            $dados = [
+                'tabela' => $tabela,
+                'chave_tabela' => $chave_tabela,
+                'acao' => $acao,
+                'chave_usuario' => $chaveUsuario,
+                'chave_acesso' => $this->pegaChaveAcesso(),
+                'valor_anterior' => json_encode($valorAnteriorInserirLog),  //json_encode($valorAnterior),
+                'valor_novo' => json_encode($valorNovoInserirLog), // $valorNovo, //json_encode($valorNovo),
+                'data_log' => date('Y-m-d H:i:s')
+            ];
+
+            $chave = $this->inclui('eventos_sistema', $dados, 0, false);
+        }        
+        return $chave;
+    }
+
+    public function pegaChaveAcesso()
+    {        
+        return isset($_SESSION[session_id()]['usuario']['chave_acesso']) ? $_SESSION[session_id()]['usuario']['chave_acesso'] : null;
     }
 }

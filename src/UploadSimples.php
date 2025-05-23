@@ -2,13 +2,43 @@
 
 namespace ClasseGeral;
 
+if (!class_exists('Imagick')) {
+    throw new \Exception('Imagick extension is not installed or enabled.');
+}
+
+use \Imagick;
+
+/**
+ * Classe utilitária para upload simples de arquivos e imagens.
+ */
 class UploadSimples
 {
-
+    /**
+     * Largura máxima da imagem (opcional).
+     * @var int
+     */
     public $largura;
+    /**
+     * Altura máxima da imagem (opcional).
+     * @var int
+     */
     public $altura;
+    /**
+     * Diretório de destino do upload.
+     * @var string
+     */
     public $destino;
 
+    /**
+     * Realiza o upload de um arquivo ou imagem para o destino especificado.
+     *
+     * @param array $arquivo Array do arquivo ($_FILES[])
+     * @param string $novo_nome Nome do arquivo após upload
+     * @param string $destino Caminho de destino
+     * @param int $largura Largura máxima da imagem (opcional)
+     * @param int $altura Altura máxima da imagem (opcional)
+     * @return bool Sucesso ou falha do upload
+     */
     public function upload($arquivo, $novo_nome, $destino, $largura = 0, $altura = 0)
     {
 
@@ -34,6 +64,15 @@ class UploadSimples
         //*/
     }
 
+    /**
+     * Realiza o upload de uma imagem, redimensionando se necessário.
+     * @param array $file Array do arquivo
+     * @param string $path Caminho de destino
+     * @param int $maxlar Largura máxima
+     * @param int $maxalt Altura máxima
+     * @param int $maxsize Tamanho máximo em bytes
+     * @return bool Sucesso ou falha
+     */
     private function uploadImagem($file, $path, $maxlar = 0, $maxalt = 0, $maxsize = 50072000)
     {
         $file_path = $file['tmp_name'];
@@ -150,13 +189,13 @@ class UploadSimples
 
     public function HexParaRGB($hex)
     {
-        $hex = ereg_replace("#", "", $hex);
+        $hex = preg_replace("/#/", "", $hex);
         $cor = array();
 
         if (strlen($hex) == 3) {
-            $cor['r'] = hexdec(substr($hex, 0, 1) . $r);
-            $cor['g'] = hexdec(substr($hex, 1, 1) . $g);
-            $cor['b'] = hexdec(substr($hex, 2, 1) . $B);
+            $cor['r'] = hexdec(str_repeat(substr($hex, 0, 1), 2));
+            $cor['g'] = hexdec(str_repeat(substr($hex, 1, 1), 2));
+            $cor['b'] = hexdec(str_repeat(substr($hex, 2, 1), 2));
         } elseif (strlen($hex) == 6) {
             $cor['r'] = hexdec(substr($hex, 0, 2));
             $cor['g'] = hexdec(substr($hex, 2, 2));
@@ -176,10 +215,10 @@ class UploadSimples
 
     public function aplicatransparencia($img, $valor_transp, $destino)
     {
-        $srcImagick = new Imagick($img);
-        $srcImagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_OPAQUE);
-        $srcImagick->evaluateImage(Imagick::EVALUATE_DIVIDE, "$valor_transp", Imagick::CHANNEL_ALPHA);
-        $srcImagick->writeImage($destino);
+        // $srcImagick = new Imagick($img);
+        // $srcImagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_OPAQUE);
+        // $srcImagick->evaluateImage(Imagick::EVALUATE_DIVIDE, "$valor_transp", Imagick::CHANNEL_ALPHA);
+        // $srcImagick->writeImage($destino);
     }
 
 }

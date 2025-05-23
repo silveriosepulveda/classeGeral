@@ -2,9 +2,17 @@
 
 namespace ClasseGeral;
 
+/**
+ * Classe utilitária para manipulação de strings (ex: abreviação de nomes, remoção de acentos).
+ */
 class ManipulaStrings
 {
-
+    /**
+     * Abrevia nomes compostos, mantendo o primeiro e último nome completos e abreviando os do meio.
+     * Exemplo: "João da Silva Pereira" => "João S. Pereira"
+     * @param string $nome Nome completo a ser abreviado
+     * @return string Nome abreviado
+     */
     public function abrevia($nome)
     {
         $nomeOriginal = $nome;
@@ -40,6 +48,12 @@ class ManipulaStrings
         } // fim else
     } // fim da função
 
+    /**
+     * Remove acentos de uma string e, opcionalmente, troca espaços por traço.
+     * @param string $texto Texto de entrada
+     * @param bool $trocarespacoportraco Se deve trocar espaços por traço
+     * @return string Texto sem acentos
+     */
     public function limparacentos($texto, $trocarespacoportraco = false)
     {
         if ($texto != '') {

@@ -4,11 +4,30 @@ namespace ClasseGeral;
 
 require_once __DIR__ . '/conClasseGeral.php';
 
+/**
+ * Classe principal para operações gerais do sistema.
+ * 
+ * Esta classe herda de ConClasseGeral e provê métodos utilitários para manipulação de dados,
+ * paginação, seleção de itens, formatação de URLs, entre outros.
+ */
 class ClasseGeral extends ConClasseGeral
 {
+    /**
+     * Caminho para funções utilitárias.
+     * @var string
+     */
     private $funcoes = "";
+
+    /**
+     * Indica se deve mostrar o SQL da consulta.
+     * @var bool
+     */
     private $mostrarSQLConsulta = false;
 
+    /**
+     * Configuração padrão de paginação.
+     * @var array
+     */
     private $paginacao = array(
         'paginasMostrar' => 5,
         'limitePaginaAtiva' => 5,
@@ -21,6 +40,10 @@ class ClasseGeral extends ConClasseGeral
         'itensUltimaPagina' => 0,
     );
 
+    /**
+     * Construtor da ClasseGeral.
+     * Inicializa timezone e define o caminho das funções utilitárias.
+     */
     public function __construct()
     {
         clearstatcache();
@@ -28,6 +51,12 @@ class ClasseGeral extends ConClasseGeral
         $this->funcoes = $_SESSION[session_id()]['caminhoApiLocal'] . 'api/BaseArcabouco/funcoes.class.php';
     }
 
+    /**
+     * Formata uma URL de vídeo do YouTube para o formato embed.
+     *
+     * @param string $url URL do vídeo.
+     * @return string URL formatada para embed.
+     */
     public function formataUrlVideo($url): string
     {
         $retorno = '';
@@ -36,9 +65,13 @@ class ClasseGeral extends ConClasseGeral
         else if (strpos($url, 'shorts/'))
             $retorno = str_replace('shorts/', 'embed/', $url);
         return $retorno;
-
     }
 
+    /**
+     * Marca ou desmarca um item como selecionado em uma consulta na sessão.
+     *
+     * @param array $parametros Parâmetros contendo 'tela', 'key', 'selecionado', 'campo_chave', 'chave'.
+     */
     public function selecionarItemConsulta($parametros)
     {
         $tela = $parametros['tela'];
@@ -47,6 +80,7 @@ class ClasseGeral extends ConClasseGeral
 
         @session_start();
 
+        // Percorre a lista de itens da consulta e marca/desmarca conforme o parâmetro
         foreach ($_SESSION[session_id()]['consultas'][$tela]['lista'] as $key => $item) {
             if ($item[$parametros['campo_chave']] == $parametros['chave']) {
                 if ($selecionado == 'false') {
@@ -57,6 +91,12 @@ class ClasseGeral extends ConClasseGeral
         }
     }
 
+    /**
+     * Seleciona ou desseleciona todos os itens de uma consulta.
+     *
+     * @param array $parametros Parâmetros contendo 'tela' e 'selecionado'.
+     * @return string JSON de sucesso.
+     */
     public function selecionarTodosItensConsulta($parametros)
     {
         $tela = $parametros['tela'];
@@ -76,6 +116,12 @@ class ClasseGeral extends ConClasseGeral
         return json_encode(['sucesso' => 'sucesso']);
     }
 
+    /**
+     * Monta os itens de um relatório a partir dos itens selecionados ou de todos os itens.
+     *
+     * @param array $parametros Parâmetros contendo 'parametrosConsulta' e 'lista'.
+     * @return array Lista de itens selecionados.
+     */
     public function montaItensRelatorio($parametros)
     {
         $p = $parametros;
@@ -90,10 +136,16 @@ class ClasseGeral extends ConClasseGeral
                 }
             }
         }
-
         return $retorno;
     }
 
+    /**
+     * Realiza uma consulta na tabela especificada nos parâmetros.
+     *
+     * @param array $parametros Parâmetros da consulta, incluindo tabela, campos, filtros, etc.
+     * @param string $tipoRetorno Tipo de retorno desejado ('json' ou 'array').
+     * @return mixed Resultado da consulta no formato desejado.
+     */
     public function consulta($parametros, $tipoRetorno = 'json')
     {
         ini_set('memory_limit', '-1');
@@ -370,6 +422,13 @@ class ClasseGeral extends ConClasseGeral
         return $resumo;
     }
 
+    /**
+     * Busca um registro para alteração com base nos parâmetros fornecidos.
+     *
+     * @param array $parametros Parâmetros da busca, incluindo tabela, chaves e campos desejados.
+     * @param string $tipoRetorno Tipo de retorno desejado ('json' ou 'array').
+     * @return mixed Registro encontrado no formato desejado.
+     */
     public function buscarParaAlterar($parametros, $tipoRetorno = 'json')
     {
         $p = isset($parametros['filtros']) ? json_decode($parametros['filtros'], true) : $parametros;
@@ -491,6 +550,13 @@ class ClasseGeral extends ConClasseGeral
         return $tipoRetorno == 'json' ? json_encode($retorno) : $retorno;
     }
 
+    /**
+     * Busca anexos relacionados a um registro.
+     *
+     * @param array $parametros Parâmetros da busca, incluindo tabela e chaves.
+     * @param string $tipoRetorno Tipo de retorno desejado ('json' ou 'array').
+     * @return mixed Anexos encontrados no formato desejado.
+     */
     public function buscarAnexos($parametros, $tipoRetorno = 'json')
     {
         $p = $parametros;
@@ -618,6 +684,12 @@ class ClasseGeral extends ConClasseGeral
 
     }
 
+    /**
+     * Detalha um registro, incluindo dados de tabelas relacionadas e anexos.
+     *
+     * @param array $parametros Parâmetros da busca, incluindo tabela, chaves e tabelas relacionadas.
+     * @return string JSON com os dados detalhados do registro.
+     */
     public
     function detalhar($parametros)
     {
@@ -991,7 +1063,7 @@ class ClasseGeral extends ConClasseGeral
                         $sqlR =
                             "SELECT $campoChaveTabRel FROM $tabelaR WHERE  $campoChaveOrigem = $dados[$campoChaveOrigem] AND $campoRelacionamentoTabRel = $dados[$campoRelacionamentoTabRel]";
 
-                        $relacionamentoTemp = $this->retornosqldireto(strtolower($sqlR));
+                        $relacionamentoTemp = $this->retornosqldireto($sqlR);
 
                         $chaveRelacionamento = sizeof($relacionamentoTemp) == 1 ? $relacionamentoTemp[0][$campoChaveTabRel] : 0;
 
@@ -1014,7 +1086,7 @@ class ClasseGeral extends ConClasseGeral
                                         $sqlSR .= $dados[$campoChaveOrigemSR] != '' && $dados[$campoChaveOrigemSR] != 'undefined' ?
                                             " AND $campoChaveOrigemSR = $dados[$campoChaveOrigemSR]" : '';
 
-                                        $subRelacionamentoTemp = $this->retornosqldireto(strtolower($sqlSR));
+                                        $subRelacionamentoTemp = $this->retornosqldireto($sqlSR);
                                         $chaveSubRelacionamento = sizeof($subRelacionamentoTemp) == 1 ? $subRelacionamentoTemp[0][$campoChaveTabSubRel] : 0;
 
                                         if ($chaveSubRelacionamento == 0) {
@@ -1225,7 +1297,7 @@ class ClasseGeral extends ConClasseGeral
 
             if (file_exists($arquivoClasse)) {
                 require_once $arquivoClasse;
-                $classe = new ('\\' . $nomeClasse)();
+                $classe = new ('\\' . $nomeClase)();
                 if (method_exists($classe, 'aoIncluirAnexos')) {
                     $classe->aoIncluirAnexos($p);
                 }
@@ -1235,6 +1307,15 @@ class ClasseGeral extends ConClasseGeral
         }
     }
 
+    /**
+     * Define as dimensões da imagem com base em restrições de largura e altura.
+     *
+     * @param mixed $arquivo Arquivo da imagem (array para upload ou string para base64).
+     * @param string $tipo Tipo de entrada ('files' ou 'base64').
+     * @param int|string $largEnt Largura desejada ou 'original' para manter original.
+     * @param int|string $altEnt Altura desejada ou 'original' para manter original.
+     * @return array Array contendo as dimensões original e nova (largura e altura).
+     */
     public function defineTamanhoImagem($arquivo, $tipo, $largEnt = 1024, $altEnt = 768): array
     {
         $larguraOriginal = 0;
@@ -1281,6 +1362,11 @@ class ClasseGeral extends ConClasseGeral
         ];
     }
 
+    /**
+     * Altera a seleção de um item em uma consulta.
+     *
+     * @param array $parametros Parâmetros contendo a consulta em formato JSON.
+     */
     public function alterarItemConsulta($parametros)
     {
         $p = json_decode($parametros['parametros'], true);
@@ -1312,6 +1398,12 @@ class ClasseGeral extends ConClasseGeral
         return $chave > 0 ? json_encode(['sucesso' => $chave]) : json_encode(['erro' => 'Erro ao Alterar, tente novamente']);
     }
 
+    /**
+     * Verifica se um valor já existe na tabela, considerando a possibilidade de exclusão lógica.
+     *
+     * @param array $parametros Parâmetros da verificação, incluindo tabela, campo e valor.
+     * @return string JSON com o resultado da verificação.
+     */
     public
     function valorExiste($parametros)
     {
@@ -1343,10 +1435,9 @@ class ClasseGeral extends ConClasseGeral
 ////////////////////FUNCOES RELACIONADAS AS IMAGENS RELACIONADAS//////////////////////
 
     /**
+     * Exclui um registro, realizando exclusão lógica ou física, dependendo da configuração.
+     *
      * @param $parametros
-     * tabela
-     * campo_chave opcional
-     * chave
      * @return false|string
      */
     public function excluir($parametros)
@@ -1419,6 +1510,12 @@ class ClasseGeral extends ConClasseGeral
         return json_encode(array('chave' => $nova_chave));
     }
 
+    /**
+     * Exclui anexos relacionados a um registro em uma tabela.
+     *
+     * @param string $tabela Nome da tabela.
+     * @param mixed $chave Chave do registro.
+     */
     public function excluirAnexosTabela($tabela, $chave)
     {
         $arquivos = $this->buscarAnexos(['tabela' => $tabela, 'chave' => $chave], 'array');
@@ -1436,6 +1533,13 @@ class ClasseGeral extends ConClasseGeral
         }
     }
 
+    /**
+     * Exclui um anexo específico.
+     *
+     * @param array $anexo Dados do anexo a ser excluído.
+     * @param string $origem Origem da exclusão (padrão ou personalizada).
+     * @return string JSON com o resultado da exclusão.
+     */
     public
     function excluiranexo($anexo, $origem = 'padrao')
     {
@@ -1476,6 +1580,11 @@ class ClasseGeral extends ConClasseGeral
         //*/
     }
 
+    /**
+     * Altera os dados de um anexo.
+     *
+     * @param array $parametros Dados do anexo a serem alterados.
+     */
     public
     function alterarAnexo($parametros)
     {
@@ -1483,6 +1592,12 @@ class ClasseGeral extends ConClasseGeral
         echo json_encode(array('chave' => $chave));
     }
 
+    /**
+     * Rotaciona uma imagem anexada.
+     *
+     * @param mixed $chave_imagem Chave da imagem a ser rotacionada.
+     * @return int Indicador de sucesso.
+     */
     public
     function rotacionarImagem($chave_imagem)
     {
@@ -1520,6 +1635,11 @@ class ClasseGeral extends ConClasseGeral
         //*/
     }
 
+    /**
+     * Altera a posição de anexos trocando as posições entre dois registros.
+     *
+     * @param array $parametros Parâmetros contendo as chaves e novas posições dos anexos.
+     */
     public
     function alterarPosicaoAnexo($parametros)
     {
@@ -1531,6 +1651,13 @@ class ClasseGeral extends ConClasseGeral
         $this->executasql($sql, $this->pegaDataBase('arquivos_anexos'));
     }
 
+    /**
+     * Busca uma variável da sessão.
+     *
+     * @param string $var Nome da variável.
+     * @param string $tipoRetorno Tipo de retorno desejado ('json' ou 'array').
+     * @return mixed Valor da variável da sessão no formato desejado.
+     */
     public function buscarSessao($var, $tipoRetorno = 'json')
     {
         $fun = new \ClasseGeral\ManipulaSessao();
@@ -1539,6 +1666,12 @@ class ClasseGeral extends ConClasseGeral
 
 ////////////////////FIM DAS FUNCOES RELACIONADAS A ARQUIVOS RELACIONADOS/////////////
 
+    /**
+     * Busca um registro por chave.
+     *
+     * @param array $parametros Parâmetros da busca, incluindo tabela, campo_chave e chave.
+     * @return string JSON com os dados do registro encontrado.
+     */
     public function buscarPorChave($parametros)
     {
         $tabela = strtolower($parametros['tabela']);
@@ -1553,6 +1686,12 @@ class ClasseGeral extends ConClasseGeral
         return json_encode($retorno);
     }
 
+    /**
+     * Busca uma chave com base em múltiplos campos.
+     *
+     * @param array $parametros Parâmetros da busca, incluindo tabela, campos e valores.
+     * @return string JSON com a chave encontrada.
+     */
     public
     function buscarChavePorCampos($parametros)
     {
@@ -1563,6 +1702,13 @@ class ClasseGeral extends ConClasseGeral
         //*/
     }
 
+    /**
+     * Monta um array de campos a partir de um array associativo.
+     *
+     * @param array $array Array de entrada.
+     * @param string $campo Campo a ser extraído de cada item do array.
+     * @return array Array contendo os valores do campo especificado.
+     */
     public
     function montarArrayDeCampos($array, $campo)
     {
@@ -1573,6 +1719,9 @@ class ClasseGeral extends ConClasseGeral
         return $retorno;
     }
 
+    /**
+     * Mantém o cache, utilizado para debug.
+     */
     public
     function manterCache()
     {

@@ -3,10 +3,21 @@
 namespace ClasseGeral;
 
 // As classes deste arquivo foram movidas para arquivos separados conforme PSR-4.
-// Para manter a compatibilidade, o namespace foi mantido.
+// Para manter a compatibilidade, o namespace foi mantido;
 
+/**
+ * Classe utilitária para manipulação de valores, como conversão de números por extenso.
+ */
 class ManipulaValores
 {
+    /**
+     * Converte um valor numérico para o formato por extenso.
+     *
+     * @param float|int $valor Valor a ser convertido
+     * @param bool $bolExibirMoeda Se deve exibir o nome da moeda
+     * @param bool $bolPalavraFeminina Se deve usar palavras no feminino
+     * @return string Valor por extenso
+     */
     public function valorPorExtenso($valor = 0, $bolExibirMoeda = true, $bolPalavraFeminina = false)
     {
         $singular = null;
@@ -82,6 +93,14 @@ class ManipulaValores
 
     }
 
+    /**
+     * Compara dois valores utilizando o operador especificado.
+     *
+     * @param float|int $valor1 Primeiro valor a ser comparado
+     * @param string $operador Operador de comparação (<, <=, >, >=, =, !=)
+     * @param float|int $valor2 Segundo valor a ser comparado
+     * @return bool Resultado da comparação
+     */
     public function compararValor($valor1, $operador, $valor2)
     {
         switch ($operador) {
@@ -110,85 +129,19 @@ class ManipulaValores
     }
 }
 
-class ManipulaEmails
-{
 
-    public $servidor = '';
-    public $email = '';
-    public $nome = '';
-    public $destinatarios = array();
-    public $assunto = '';
-    public $usuario = '';
-    public $senha = '';
-    public $autenticar = false;
-    public $texto = '';
-
-    public function enviarEmail()
-    {
-        date_default_timezone_set("America/Sao_Paulo");
-        require_once('PHPMailer/class.phpmailer.php');
-        //Primeiro setamos o cabe�alho:
-        $header = " Content-type: text/html; charset=utf-8\r\n";
-        //instanciamos o objeto
-        $mail = new PHPMailer();
-        $mail->SetLanguage("br");
-        $mail->IsMail();
-        // Informamos que vamos enviar atrav�s de SMTP
-        //$mail->IsSMTP();
-        $mail->IsHTML(true);
-        // Colocamos o servidor smtp
-        $mail->Host = $this->servidor;
-        $mail->SMTPAuth = $this->autenticar;
-        $mail->Username = $this->usuario;
-        $mail->Password = $this->senha;
-
-        $mail->From = $this->email;
-        $mail->FromName = $this->nome;
-        $mail->Subject = $this->assunto;
-
-        foreach ($this->destinatarios as $key => $val) {
-            $mail->AddAddress($val);
-        }
-
-        $mail->MsgHTML($this->texto, ' ');
-
-        if ($mail->Send()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-}
-
-
-class Combinacoes
-{
-
-    /**
-     * Funcao que transforma um array em outro array com as combinacoes possiveis
-     * do array de entrada
-     * @param varchar $array variavel com os valores a serem combinados
-     * @param varchar $separador Caracter que separara os valores nas combinacoes de retorno
-     * @return array Variavel que retornara um array com as combinacoes
-     */
-    public function combinacoesPossiveis($array, $separador = '-')
-    {
-        $retorno = array();
-        $tam = sizeof($array);
-        require_once 'combinacoes.php';
-        $combinatorics = new Math_Combinatorics;
-        foreach ($combinatorics->permutations($array, $tam) as $p) {
-            $retorno[] = join($separador, $p);
-        }
-        return $retorno;
-    }
-
-}
-
+/**
+ * Classe para manipulação de datas, incluindo formatação, cálculo de diferenças e adição de intervalos.
+ */
 class ManipulaDatas
 {
 
+    /**
+     * Converte uma data para o formato por extenso.
+     *
+     * @param string $data Data a ser convertida
+     * @return string Data por extenso
+     */
     public function dataExtenso($data)
     {
 // leitura das datas
@@ -206,6 +159,14 @@ class ManipulaDatas
         }
     }
 
+    /**
+     * Calcula a diferença em dias entre duas datas.
+     *
+     * @param string $data_inicial Data inicial
+     * @param string $data_final Data final
+     * @param string $tipo Tipo de entrada das datas ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @return int|bool Diferença em dias ou false em caso de erro
+     */
     public function diferencaEntreDatas($data_inicial, $data_final, $tipo = 'base')
     {
         if ($tipo == 'base') {
@@ -237,7 +198,15 @@ class ManipulaDatas
         return floor($dias_diferenca);
     }
 
-
+    /**
+     * Adiciona uma quantidade de meses a uma data.
+     *
+     * @param string $data Data de entrada
+     * @param int $meses Quantidade de meses a serem adicionados
+     * @param string $tipo Tipo de entrada da data ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @param string $tipoRetorno Tipo de saída da data ('tela' para d/m/Y ou 'base' para Y-m-d)
+     * @return string Data com os meses adicionados
+     */
     public function somarMesesAData($data, $meses, $tipo = 'base', $tipoRetorno = 'tela')
     {
         if ($tipo == 'base') {
@@ -280,6 +249,15 @@ class ManipulaDatas
 
     }
 
+    /**
+     * Adiciona uma quantidade de dias a uma data.
+     *
+     * @param string $data Data de entrada
+     * @param int $dias Quantidade de dias a serem adicionados
+     * @param string $tipoEntrada Tipo de entrada da data ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @param string $tipoSaida Tipo de saída da data ('tela' para d/m/Y ou 'base' para Y-m-d)
+     * @return string Data com os dias adicionados
+     */
     public function somarDiasAData($data, $dias, $tipoEntrada = 'base', $tipoSaida = 'tela')
     {
         $data = str_replace("'", '', $data);
@@ -306,6 +284,15 @@ class ManipulaDatas
         }
     }
 
+    /**
+     * Subtrai uma quantidade de dias de uma data.
+     *
+     * @param string $data Data de entrada
+     * @param int $dias Quantidade de dias a serem subtraídos
+     * @param string $tipoEntrada Tipo de entrada da data ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @param string $tipoSaida Tipo de saída da data ('tela' para d/m/Y ou 'base' para Y-m-d)
+     * @return string Data com os dias subtraídos
+     */
     public function subtrairDiasDaData($data, $dias, $tipoEntrada = 'base', $tipoSaida = 'tela')
     {
         $data = str_replace("'", '', $data);
@@ -332,6 +319,12 @@ class ManipulaDatas
         }
     }
 
+    /**
+     * Retorna um array com os meses do ano.
+     *
+     * @param int $mes Número do mês (1 a 12) para retorno do nome específico, ou 0 para retornar todos os meses
+     * @return array|mixed Array com os nomes dos meses ou nome do mês específico
+     */
     public function arraymeses($mes = 0)
     {
         $meses = array(
@@ -355,6 +348,11 @@ class ManipulaDatas
         }
     }
 
+    /**
+     * Retorna um array com os dias da semana.
+     *
+     * @return array Array com os nomes dos dias da semana
+     */
     public function arraydiassemana()
     {
         $dias_semana = array(
@@ -369,6 +367,13 @@ class ManipulaDatas
         return $dias_semana;
     }
 
+    /**
+     * Retorna o dia da semana para uma determinada data.
+     *
+     * @param string $data Data a ser verificada
+     * @param string $tipo Tipo de entrada da data ('tela' para d/m/Y ou 'base' para Y-m-d)
+     * @return array Array contendo a chave do dia da semana e o nome do dia
+     */
     public function diadasemana($data, $tipo = 'tela')
     {
 
@@ -392,6 +397,13 @@ class ManipulaDatas
         return array('chave_dia' => $chave, 'dia' => $dia);
     }
 
+    /**
+     * Retorna um array com os dias de um mês específico de um ano.
+     *
+     * @param int $chave_mes Número do mês (1 a 12)
+     * @param string $ano Ano desejado (se não informado, será considerado o ano atual)
+     * @return array Array contendo o ano, o nome do mês e os dias do mês
+     */
     public function arraydiasmes($chave_mes, $ano = '')
     {
         date_default_timezone_set('America/Sao_Paulo');
@@ -411,6 +423,12 @@ class ManipulaDatas
         return $retorno;
     }
 
+    /**
+     * Retorna um array com os dias de todos os meses de um ano.
+     *
+     * @param string $ano Ano desejado (se não informado, será considerado o ano atual)
+     * @return array Array contendo o ano, os meses e os dias de cada mês
+     */
     public function arraydiasmeses($ano = '')
     {
         date_default_timezone_set('America/Sao_Paulo');
@@ -433,6 +451,13 @@ class ManipulaDatas
         return $retorno;
     }
 
+    /**
+     * Valida uma data verificando se é uma data real no calendário.
+     *
+     * @param string $data Data a ser validada
+     * @param string $origem Origem da data ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @return bool Resultado da validação
+     */
     public function validadata($data, $origem = 'base')
     {
         date_default_timezone_set('America/Sao_Paulo');
@@ -455,6 +480,14 @@ class ManipulaDatas
         }
     }
 
+    /**
+     * Retorna o primeiro dia de um mês a partir de uma data.
+     *
+     * @param string $data Data de referência
+     * @param string $origem Origem da data ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @param string $destino Formato de saída da data ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @return string Primeiro dia do mês no formato desejado
+     */
     public function primeiroDiaMes($data, $origem = 'base', $destino = 'base')
     {
         $data = str_replace("'", "", $data);
@@ -473,6 +506,14 @@ class ManipulaDatas
         return $destino == 'tela' ? "01/$mes/$ano" : $ano . '-' . $mes . '-01';
     }
 
+    /**
+     * Retorna o último dia de um mês a partir de uma data.
+     *
+     * @param string $data Data de referência
+     * @param string $origem Origem da data ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @param string $destino Formato de saída da data ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @return string Último dia do mês no formato desejado
+     */
     public function ultimoDiaMes($data, $origem = 'base', $destino = 'base')
     {
         $data = str_replace("'", "", $data);
@@ -502,6 +543,14 @@ class ManipulaDatas
         }
     }
 
+    /**
+     * Retorna o número da semana de uma data.
+     *
+     * @param string $data Data de referência
+     * @param string $origem Origem da data ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @param string $destino Formato de saída da semana ('base' para número da semana ou 'tela' para intervalo de datas)
+     * @return mixed Número da semana ou intervalo de datas
+     */
     public function numeroSemana($data, $origem = 'base', $destino = 'base')
     {
         $data = str_replace("'", "", $data);
@@ -522,6 +571,15 @@ class ManipulaDatas
         return (int)date('W', $date);
     }
 
+    /**
+     * Retorna um array com todas as datas em um intervalo entre duas datas.
+     *
+     * @param string $dataInicial Data inicial do intervalo
+     * @param string $dataFinal Data final do intervalo
+     * @param string $tipoEntrada Tipo de entrada das datas ('base' para Y-m-d ou 'tela' para d/m/Y)
+     * @param string $tipoSaida Tipo de saída das datas ('tela' para d/m/Y ou 'base' para Y-m-d)
+     * @return array Array com as datas do intervalo
+     */
     public function arrayDatasIntervalo($dataInicial, $dataFinal, $tipoEntrada = 'base', $tipoSaida = 'tela')
     {
         $diferenca = $this->diferencaEntreDatas($dataInicial, $dataFinal, $tipoEntrada);
@@ -540,9 +598,19 @@ class ManipulaDatas
 
 }
 
+/**
+ * Classe para manipulação de arquivos.
+ */
 class ManipulaArquivos
 {
 
+    /**
+     * Lê o conteúdo de um arquivo e retorna como uma string.
+     *
+     * @param string $caminho Caminho do arquivo a ser lido
+     * @param bool $temaspas Se deve adicionar aspas ao redor do conteúdo
+     * @return string Conteúdo do arquivo
+     */
     public function arquivoparavariavel($caminho, $temaspas = true)
     {
         $retorno = $temaspas ? '"' : '';
@@ -561,213 +629,18 @@ class ManipulaArquivos
 
 
 
-
-//Tenho que passar destaque e alterar posicao para classe geral posterior mente 18/12/2018//
-class Destaque /*extends conexao*/
-{
-    public function __construct()
-    {
-        include_once 'bancodedados/conexao.php';
-    }
-
-    public function poremdestaque($tabela, $campo_chave, $chave, $valor, $posicao = 0)
-    {
-        $tabela = strtoupper($tabela);
-        $campo_chave = strtoupper($campo_chave);
-
-        $ativo = $valor == 'true' ? 'D' : 'S';
-
-        $pos = new posicoes;
-
-        if ($ativo == 'D') {
-            $posicao = $pos->proximaposicao($tabela);
-            $sql = "UPDATE $tabela SET DISPONIVEL = '$ativo', POSICAO = $posicao WHERE $campo_chave = $chave";
-            $res = $this->executasql($sql);
-            if ($res) {
-                return $posicao;
-            } else {
-                return 0;
-            }
-        } else if ($ativo == 'S') {
-            if ($pos->atualizarposicoesexclusao($tabela, $posicao, 'DISPONIVEL', 'D')) {
-                $sql = "UPDATE $tabela SET DISPONIVEL = '$ativo', POSICAO = 0 WHERE $campo_chave = $chave";
-                $res = $this->executasql($sql);
-                if ($res) {
-                    return 0;
-                } else {
-                    return 1;
-                }
-            } else {
-                return 0;
-            }
-        }
-    }
-
-    public function quantidadedestaque($tabela)
-    {
-        $tabela = strtoupper($tabela);
-        $sql = "SELECT COUNT(POSICAO) AS QUANTIDADE FROM $tabela WHERE DISPONIVEL = 'D'";
-        $res = $this->executasql($sql);
-        $lin = $this->retornosql($res);
-        $quantidade = $lin['QUANTIDADE'];
-        return $quantidade;
-    }
-
-}
-
-class Posicoes /*extends conexao*/
-{
-    public function alterarposicaonova($tabela, $campo_chave, $chave_primaria, $acrescentar, $pos_atual, $nova_pos, $campo_ctp = 'naousar', $valor_ctp = '')
-    {
-        $tabela = $this->nometabela($tabela);
-        $campo_chave = $campo_chave != '' ? strtoupper($campo_chave) : $this->campochavetabela($tabela);
-
-        $sql = "UPDATE $tabela SET POSICAO = $nova_pos WHERE $campo_chave = $chave_primaria";
-
-        $operador = $acrescentar > 0 ? '+' : '-';
-
-        $sql2 = "UPDATE $tabela SET POSICAO = POSICAO $operador 1";
-
-        if ($acrescentar < 0) {
-            $sql2 .= " WHERE POSICAO > $pos_atual AND POSICAO <= $nova_pos";
-        } else if ($acrescentar > 0) {
-            $sql2 .= " WHERE POSICAO >= $nova_pos AND POSICAO < $pos_atual";
-        }
-
-        if ($campo_ctp != 'naousar') {
-            $sql_ctp = "SELECT $campo_ctp FROM $tabela WHERE $campo_chave = $chave_primaria";
-            $res_ctp = $this->executasql($sql_ctp);
-            $lin = $this->retornosql($res_ctp);
-            $sql2 .= " AND $campo_ctp = $valor_ctp";
-        }
-        $sql2 .= " AND $campo_chave != $chave_primaria";
-
-        $res = $this->executasql($sql);
-        $res2 = $this->executasql($sql2);
-
-        return 1;
-    }
-
-    /**
-     * Fun��o que altera as posi��es na tabela indicada
-     * @param type $tabela Tabela que sera realizada a alteracao
-     * @param type $campo_chave
-     * @param type $posicao_atual
-     * @param type $nova_posicao
-     * @param type $chave_tabela_primaria
-     * @param type $valor_ctp
-     * @return boolean
-     */
-    public function alterarposicao($tabela, $campo_chave = '', $posicao_atual = 0, $nova_posicao = 0, $chave_tabela_primaria = '', $valor_ctp = 0)
-    {
-        $tabela = $this->nometabela($tabela);
-
-        $campo_chave = $campo_chave = '' ? $this->campochavetabela($tabela) : $campo_chave;
-
-        $chave_tabela_primaria = strtoupper($chave_tabela_primaria);
-
-        $chave_pos_atual = $this->pegarchavepelaposicao($tabela, $campo_chave, $posicao_atual, $chave_tabela_primaria, $valor_ctp);
-
-        $chave_pos_nova = $this->pegarchavepelaposicao($tabela, $campo_chave, $nova_posicao, $chave_tabela_primaria, $valor_ctp);
-
-        //Ponho a nova posicao no campo que tem a posi�ao atual
-        $sql = "UPDATE $tabela SET POSICAO = $nova_posicao";
-        $sql .= " WHERE $campo_chave = $chave_pos_atual";
-        if ($valor_ctp > 0) {
-            $sql .= " AND $chave_tabela_primaria = $valor_ctp";
-        }
-
-        //echo $sql . "\n";
-
-        $res = $this->executasql($sql);
-        //Ponho a posi�ao atual no campo que tem a nova posi�ao
-        $sql1 = "UPDATE $tabela SET POSICAO = $posicao_atual";
-        $sql1 .= " WHERE $campo_chave = $chave_pos_nova";
-        if ($valor_ctp > 0) {
-            $sql1 .= " AND $chave_tabela_primaria = $valor_ctp";
-        }
-        //echo $sql1 . "\n";
-
-        $res1 = $this->executasql($sql1);
-        return true;
-    }
-
-    public function pegarchavepelaposicao($tabela, $campo_chave, $posicao, $chave_tabela_primaria = '', $valor_ctp = 0)
-    {
-        $tabela = strtoupper($tabela);
-        $campo_chave = strtoupper($campo_chave);
-        $chave_tabela_primaria = strtoupper($chave_tabela_primaria);
-
-
-        $sql = "SELECT $campo_chave AS CHAVE FROM $tabela WHERE POSICAO = $posicao";
-        if ($valor_ctp > 0)
-            $sql .= " AND $chave_tabela_primaria = '$valor_ctp'";
-//echo $sql;
-        $res = $this->executasql($sql);
-        $lin = $this->retornosql($res);
-        return $lin['CHAVE'];
-    }
-
-    public function proximaposicao($tabela, $campo_tabela_primaria = '', $chave_primaria = 'naousar')
-    {
-        $tabela = strtoupper($tabela);
-        $campo_tabela_primaria = strtoupper($campo_tabela_primaria);
-        $campo_chave = $this->campochavetabela($tabela);
-//Neste caso h� uma tabela primaria relacionada, tipo MENU_ITENS com MENUS
-        if ($chave_primaria != 'naousar') {
-            $sql = "SELECT COALESCE(MAX(POSICAO), 0) + 1 AS POSICAO FROM $tabela";
-            $sql .= " WHERE $campo_tabela_primaria = '$chave_primaria'";
-        } else {
-            $sql = "SELECT COALESCE(MAX(POSICAO), 0) + 1 AS POSICAO FROM $tabela";
-        }
-//echo $sql;
-        $res = $this->executasql($sql);
-
-        $lin = $this->retornosql($res);
-        return $lin['POSICAO'];
-    }
-
-    public function pegarposicao($tabela, $campo_chave, $chave)
-    {
-        $tabela = strtoupper($tabela);
-        $campo_chave = strtoupper($campo_chave);
-        $sql = "SELECT POSICAO FROM $tabela WHERE $campo_chave = $chave";
-
-        $res = $this->executasql($sql);
-        $lin = $this->retornosql($res);
-        return $lin['POSICAO'];
-    }
-
-    /**
-     *
-     * @param type $tabela Tabela que sera alterada
-     * @param type $posicao Posicao inicial das alteracoes
-     * @param type $campo_tabela_primaria campo_chave_tabela_primaria caso haja
-     * @param type $valor_ctp valor da chave da tabela primaria caso haja
-     * @return boolean
-     */
-    public function atualizarposicoesexclusao($tabela, $posicao, $campo_tabela_primaria = '', $valor_ctp = '')
-    {
-        $tabela = strtoupper($tabela);
-        $campo_chave = $this->campochavetabela($tabela);
-        $campo_tabela_primaria = strtoupper($campo_tabela_primaria);
-
-        $sql = "UPDATE $tabela SET POSICAO = POSICAO - 1";
-        $sql .= " WHERE $campo_chave > 0 AND POSICAO > $posicao";
-
-        if ($valor_ctp != '')
-            $sql .= " AND $campo_tabela_primaria = '$valor_ctp'";
-
-        //echo $sql;
-        $res = $this->executasql($sql);
-        return true;
-    }
-
-}
-
+/**
+ * Classe para validação e manipulação de documentos, como CNPJ.
+ */
 class ManipulaDocumentos
 {
 
+    /**
+     * Valida um CNPJ verificando se é um número de CNPJ válido.
+     *
+     * @param string $cnpj CNPJ a ser validado
+     * @return bool Resultado da validação
+     */
     public function valida_cnpj($cnpj)
     {
         // Deixa o CNPJ com apenas n�meros

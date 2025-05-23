@@ -2,9 +2,16 @@
 
 namespace ClasseGeral;
 
+/**
+ * Classe utilitária para gerenciamento de diretórios (criação, listagem, remoção).
+ */
 class GerenciaDiretorios
 {
-
+    /**
+     * Cria diretórios recursivamente a partir de um caminho informado.
+     * @param string $caminho Caminho do diretório a ser criado
+     * @return bool Sucesso da operação
+     */
     public function criadiretorio($caminho)
     {
         ini_set('display_errors', 1);
@@ -20,6 +27,11 @@ class GerenciaDiretorios
         return true;
     }
 
+    /**
+     * Lista arquivos de um diretório filtrando por extensões conhecidas.
+     * @param string $caminho Caminho do diretório
+     * @return array Lista de arquivos encontrados
+     */
     public function listaarquivosdiretorio($caminho)
     {
         /* Apaga o diret�rio e todo o seu cont�do */
@@ -41,6 +53,11 @@ class GerenciaDiretorios
         return ($retorno);
     }
 
+    /**
+     * Remove um diretório e todo o seu conteúdo.
+     * @param string $caminho Caminho do diretório
+     * @return void
+     */
     public function apagadiretorio($caminho)
     {
         /* Apaga o diret�rio e todo o seu cont�do */
