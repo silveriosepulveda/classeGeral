@@ -6,7 +6,6 @@ if (!class_exists('Imagick')) {
     throw new \Exception('Imagick extension is not installed or enabled.');
 }
 
-use \Imagick;
 
 /**
  * Classe utilitária para upload simples de arquivos e imagens.

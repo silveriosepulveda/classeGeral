@@ -71,9 +71,20 @@ class ClasseGeral extends ConClasseGeral
      * Marca ou desmarca um item como selecionado em uma consulta na sessão.
      *
      * @param array $parametros Parâmetros contendo 'tela', 'key', 'selecionado', 'campo_chave', 'chave'.
+     * Exemplo:
+     *   [
+     *     'tela' => 'usuarios',
+     *     'key' => 1,
+     *     'selecionado' => 'true',
+     *     'campo_chave' => 'id',
+     *     'chave' => 123
+     *   ]
      */
     public function selecionarItemConsulta($parametros)
     {
+        if (!is_array($parametros)) {
+            throw new \InvalidArgumentException('Esperado array em $parametros');
+        }
         $tela = $parametros['tela'];
         $key = $parametros['key'];
         $selecionado = $parametros['selecionado'];
@@ -95,10 +106,14 @@ class ClasseGeral extends ConClasseGeral
      * Seleciona ou desseleciona todos os itens de uma consulta.
      *
      * @param array $parametros Parâmetros contendo 'tela' e 'selecionado'.
+     * Exemplo: [ 'tela' => 'usuarios', 'selecionado' => 'true' ]
      * @return string JSON de sucesso.
      */
     public function selecionarTodosItensConsulta($parametros)
     {
+        if (!is_array($parametros)) {
+            throw new \InvalidArgumentException('Esperado array em $parametros');
+        }
         $tela = $parametros['tela'];
         $selecionado = $parametros['selecionado'];
 
@@ -120,10 +135,14 @@ class ClasseGeral extends ConClasseGeral
      * Monta os itens de um relatório a partir dos itens selecionados ou de todos os itens.
      *
      * @param array $parametros Parâmetros contendo 'parametrosConsulta' e 'lista'.
+     * Exemplo: [ 'parametrosConsulta' => [...], 'lista' => [...]]
      * @return array Lista de itens selecionados.
      */
     public function montaItensRelatorio($parametros)
     {
+        if (!is_array($parametros)) {
+            throw new \InvalidArgumentException('Esperado array em $parametros');
+        }
         $p = $parametros;
         $retorno = array();
         if ($p['parametrosConsulta']['todosItensSelecionados']) {
@@ -144,10 +163,14 @@ class ClasseGeral extends ConClasseGeral
      *
      * @param array $parametros Parâmetros da consulta, incluindo tabela, campos, filtros, etc.
      * @param string $tipoRetorno Tipo de retorno desejado ('json' ou 'array').
+     * Exemplo: [ 'tabela' => 'usuarios', 'campos' => ['id', 'nome'], ... ]
      * @return mixed Resultado da consulta no formato desejado.
      */
     public function consulta($parametros, $tipoRetorno = 'json')
     {
+        if (!is_array($parametros)) {
+            throw new \InvalidArgumentException('Esperado array em $parametros');
+        }
         ini_set('memory_limit', '-1');
         $p = isset($parametros['parametros']) ? json_decode($parametros['parametros'], true) : $parametros;
 
@@ -427,10 +450,14 @@ class ClasseGeral extends ConClasseGeral
      *
      * @param array $parametros Parâmetros da busca, incluindo tabela, chaves e campos desejados.
      * @param string $tipoRetorno Tipo de retorno desejado ('json' ou 'array').
+     * Exemplo: [ 'tabela' => 'usuarios', 'campo_chave' => 'id', 'chave' => 123 ]
      * @return mixed Registro encontrado no formato desejado.
      */
     public function buscarParaAlterar($parametros, $tipoRetorno = 'json')
     {
+        if (!is_array($parametros)) {
+            throw new \InvalidArgumentException('Esperado array em $parametros');
+        }
         $p = isset($parametros['filtros']) ? json_decode($parametros['filtros'], true) : $parametros;
 
         @session_start();
@@ -555,10 +582,14 @@ class ClasseGeral extends ConClasseGeral
      *
      * @param array $parametros Parâmetros da busca, incluindo tabela e chaves.
      * @param string $tipoRetorno Tipo de retorno desejado ('json' ou 'array').
+     * Exemplo: [ 'tabela' => 'usuarios', 'chave' => 123 ]
      * @return mixed Anexos encontrados no formato desejado.
      */
     public function buscarAnexos($parametros, $tipoRetorno = 'json')
     {
+        if (!is_array($parametros)) {
+            throw new \InvalidArgumentException('Esperado array em $parametros');
+        }
         $p = $parametros;
 
         $tabela = strtolower($this->nometabela($p['tabela']));
@@ -688,11 +719,14 @@ class ClasseGeral extends ConClasseGeral
      * Detalha um registro, incluindo dados de tabelas relacionadas e anexos.
      *
      * @param array $parametros Parâmetros da busca, incluindo tabela, chaves e tabelas relacionadas.
+     * Exemplo: [ 'tabela' => 'usuarios', 'campo_chave' => 'id', 'chave' => 123 ]
      * @return string JSON com os dados detalhados do registro.
      */
-    public
-    function detalhar($parametros)
+    public function detalhar($parametros)
     {
+        if (!is_array($parametros)) {
+            throw new \InvalidArgumentException('Esperado array em $parametros');
+        }
         $p = $parametros;
 
         $config = $this->buscaConfiguracoesTabela($p['tabela']);
@@ -760,12 +794,17 @@ class ClasseGeral extends ConClasseGeral
     }
 
     /**
-     * @param $parametros
-     * @param string $arquivos
+     * Manipula dados de inclusão/edição, incluindo arquivos.
+     *
+     * @param array $parametros Parâmetros de manipulação.
+     * @param array $arquivos Arquivos enviados.
+     * Exemplo: [ 'dados' => [...], 'configuracoes' => [...] ], [ 'campoArquivo' => $_FILES['campoArquivo'] ]
      */
-    public
-    function manipula($parametros, $arquivos = [])
+    public function manipula($parametros, $arquivos = [])
     {
+        if (!is_array($parametros)) {
+            throw new \InvalidArgumentException('Esperado array em $parametros');
+        }
         $chave = 0;
         $p = $parametros;
 
@@ -1314,10 +1353,19 @@ class ClasseGeral extends ConClasseGeral
      * @param string $tipo Tipo de entrada ('files' ou 'base64').
      * @param int|string $largEnt Largura desejada ou 'original' para manter original.
      * @param int|string $altEnt Altura desejada ou 'original' para manter original.
+     * Exemplo: defineTamanhoImagem($_FILES['imagem'], 'files', 800, 600)
      * @return array Array contendo as dimensões original e nova (largura e altura).
      */
     public function defineTamanhoImagem($arquivo, $tipo, $largEnt = 1024, $altEnt = 768): array
     {
+        // Garantir que $largEnt e $altEnt sejam numéricos se não forem 'original' ou 'undefined'
+        if ($largEnt !== 'original' && $largEnt !== 'undefined' && !is_numeric($largEnt)) {
+            $largEnt = 1024;
+        }
+        if ($altEnt !== 'original' && $altEnt !== 'undefined' && !is_numeric($altEnt)) {
+            $altEnt = 768;
+        }
+
         $larguraOriginal = 0;
         $alturaOriginal = 0;
 
@@ -1363,85 +1411,17 @@ class ClasseGeral extends ConClasseGeral
     }
 
     /**
-     * Altera a seleção de um item em uma consulta.
-     *
-     * @param array $parametros Parâmetros contendo a consulta em formato JSON.
-     */
-    public function alterarItemConsulta($parametros)
-    {
-        $p = json_decode($parametros['parametros'], true);
-
-        $tabela = $this->nometabela($p['tabela']);
-        $dados = $p['dados'];
-
-        $parametrosBuscaEstrutura = [
-            'tabela' => $tabela,
-            'classe' => isset($p['classe']) ? $p['classe'] : $tabela,
-            'origem' => 'consulta'
-        ];
-
-        $config = $this->buscarEstrutura($parametrosBuscaEstrutura, 'array');
-        $camposObrigatoriosVazios = $this->validarCamposObrigatorios($config, $dados);
-
-        if (sizeof($camposObrigatoriosVazios) > 0) {
-            return json_encode(['camposObrigatoriosVazios' => $camposObrigatoriosVazios]);
-        }
-
-        $campoChave = isset($p['campoChave']) ? $p['campoChave'] : $this->campochavetabela($tabela);
-
-        if (isset($p['valoresOriginais'])) {
-            unset($p['valoresOriginais']);
-        }
-
-        $chave = $this->altera($tabela, $dados, $dados[$campoChave], false);
-
-        return $chave > 0 ? json_encode(['sucesso' => $chave]) : json_encode(['erro' => 'Erro ao Alterar, tente novamente']);
-    }
-
-    /**
-     * Verifica se um valor já existe na tabela, considerando a possibilidade de exclusão lógica.
-     *
-     * @param array $parametros Parâmetros da verificação, incluindo tabela, campo e valor.
-     * @return string JSON com o resultado da verificação.
-     */
-    public
-    function valorExiste($parametros)
-    {
-        $p = $parametros;
-
-        $campos_tabela = $this->campostabela($p['tabela']);
-        $s['tabela'] = $p['tabela'];
-        $s['campos'] = isset($p['retornar_completo']) && $p['retornar_completo'] ? array_keys($campos_tabela) : array($p['campo']);
-
-        if (isset($p['campo_valor'])) {
-            $s['campos'][] = $p['campo_valor'];
-        }
-
-        if (isset($p['chave']) && $p['chave'] > 0) {
-            $s['comparacao'][] = array('int', $p['campo_chave'], '!=', $p['chave']);
-        }
-        $s['comparacao'][] = array('varchar', $p['campo'], '=', $p['valor']);
-
-        if (isset($campos_tabela['disponivel'])) {
-            $s['comparacao'][] = array('varchar', 'disponivel', '!=', 'E');
-        } elseif (isset($campos_tabela['arquivado'])) {
-            $s['comparacao'][] = array('varchar', 'arquivado', '!=', 'E');
-        }
-
-        return json_encode($this->retornosqldireto($s, 'montar', $p['tabela'], false, false));
-
-    }
-
-////////////////////FUNCOES RELACIONADAS AS IMAGENS RELACIONADAS//////////////////////
-
-    /**
      * Exclui um registro, realizando exclusão lógica ou física, dependendo da configuração.
      *
-     * @param $parametros
+     * @param array $parametros Parâmetros para exclusão.
+     * Exemplo: [ 'tabela' => 'usuarios', 'campo_chave' => 'id', 'chave' => 123 ]
      * @return false|string
      */
     public function excluir($parametros)
     {
+        if (!is_array($parametros)) {
+            throw new \InvalidArgumentException('Esperado array em $parametros');
+        }
         $p = $parametros;
 
         $campos_tabela = $this->campostabela($p['tabela']);
@@ -1515,9 +1495,14 @@ class ClasseGeral extends ConClasseGeral
      *
      * @param string $tabela Nome da tabela.
      * @param mixed $chave Chave do registro.
+     * Exemplo: excluirAnexosTabela('usuarios', 123)
      */
     public function excluirAnexosTabela($tabela, $chave)
     {
+        if (!is_string($tabela)) {
+            throw new \InvalidArgumentException('Esperado string em $tabela');
+        }        
+
         $arquivos = $this->buscarAnexos(['tabela' => $tabela, 'chave' => $chave], 'array');
 
         if (sizeof($arquivos) > 0) {
@@ -1538,11 +1523,14 @@ class ClasseGeral extends ConClasseGeral
      *
      * @param array $anexo Dados do anexo a ser excluído.
      * @param string $origem Origem da exclusão (padrão ou personalizada).
+     * Exemplo: excluiranexo(['tabela'=>'usuarios','chave_anexo'=>1,'mini'=>'/mini/1.png','grande'=>'/1.png'], 'padrao')
      * @return string JSON com o resultado da exclusão.
      */
-    public
-    function excluiranexo($anexo, $origem = 'padrao')
+    public function excluiranexo($anexo, $origem = 'padrao')
     {
+        if (!is_array($anexo)) {
+            throw new \InvalidArgumentException('Esperado array em $anexo');
+        }
         $caminho = $this->pegaCaminhoApi();
         $tabela = $this->nometabela($anexo['tabela']);
 
@@ -1584,10 +1572,13 @@ class ClasseGeral extends ConClasseGeral
      * Altera os dados de um anexo.
      *
      * @param array $parametros Dados do anexo a serem alterados.
+     * Exemplo: alterarAnexo(['chave_anexo'=>1,'nome'=>'novo_nome.png'])
      */
-    public
-    function alterarAnexo($parametros)
+    public function alterarAnexo($parametros)
     {
+        if (!is_array($parametros)) {
+            throw new \InvalidArgumentException('Esperado array em $parametros');
+        }
         $chave = $this->altera('arquivos_anexos', $parametros, $parametros['chave_anexo'], false);
         echo json_encode(array('chave' => $chave));
     }
@@ -1595,12 +1586,15 @@ class ClasseGeral extends ConClasseGeral
     /**
      * Rotaciona uma imagem anexada.
      *
-     * @param mixed $chave_imagem Chave da imagem a ser rotacionada.
+     * @param int $chave_imagem Chave da imagem a ser rotacionada.
+     * Exemplo: rotacionarImagem(123)
      * @return int Indicador de sucesso.
      */
-    public
-    function rotacionarImagem($chave_imagem)
+    public function rotacionarImagem($chave_imagem)
     {
+        if (!is_numeric($chave_imagem)) {
+            throw new \InvalidArgumentException('Esperado inteiro em $chave_imagem');
+        }
         @session_start();
         $caminho = $_SESSION[session_id()]['caminhoApiLocal'];
         $arquivo = $this->retornosqldireto("SELECT * FROM arquivos_anexos WHERE chave_anexo = $chave_imagem")[0];
@@ -1748,13 +1742,22 @@ class ClasseGeral extends ConClasseGeral
                 }
                 if (isset($campos_tabela['disponivel'])) {
                     $s['comparacao'][] = array('varchar', 'disponivel', '!=', 'E');
+                } elseif (isset($campos_tabela['arquivado'])) {
+                    $s['comparacao'][] = array('varchar', 'arquivado', '!=', 'E');
                 }
             }
         }
 
         //Por enquanto farei apenas dois niveis, relacionada e subrelacionada
+        //Esta variavel vai definir se busco os dados relacionados e incluo no retorno
+        $incluirRelacionados = false;
+
         if (isset($p['tabelasRelacionadas']) && is_array($p['tabelasRelacionadas'])) {
             foreach ($p['tabelasRelacionadas'] as $tabelaRelacionada => $dadosTabelaRelacionada) {
+                if (isset($dadosTabelaRelacionada['incluirNaConsulta']) && $dadosTabelaRelacionada['incluirNaConsulta']) {
+                    $incluirRelacionados = true;
+                }
+
                 if (!isset($dadosTabelaRelacionada['usarNaPesquisa']) || $dadosTabelaRelacionada['usarNaPesquisa'] == 'true') {
 
                     $camposTabelaRelacionada = $this->campostabela($tabelaRelacionada, $dataBase);
